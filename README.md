@@ -10,7 +10,7 @@ A product configurator for a fictional sneaker store. Rotate the sneaker in 3D, 
 - Tailwind CSS
 - Three.js with React Three Fiber and drei
 - glTF Transform and sharp, to prepare the 3D model
-- Zustand *(coming soon)*
+- Zustand for shared state
 - Vitest and Playwright *(coming soon)*
 - GitHub Actions: lint, type check and build on every push
 
