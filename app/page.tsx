@@ -1,4 +1,5 @@
 import Visor from "@/components/Visor";
+import PanelOpciones from "@/components/PanelOpciones";
 
 export default function Home() {
   return (
@@ -21,6 +22,7 @@ export default function Home() {
           <p className="mt-2 text-neutral-600">
             Elige el color y el material de cada parte.
           </p>
+          <PanelOpciones />
         </aside>
       </main>
     </div>
