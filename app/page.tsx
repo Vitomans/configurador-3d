@@ -5,19 +5,19 @@ export default function Home() {
         <p className="text-xl font-bold tracking-tight">Pisada</p>
       </header>
 
-      {/* On mobile the viewer goes on top and the panel below; on desktop they sit side by side */}
+      {/* En el celular el visor va arriba y el panel abajo; en escritorio quedan lado a lado */}
       <main className="flex flex-1 flex-col lg:flex-row">
         <section
-          aria-label="3D viewer"
+          aria-label="Visor 3D"
           className="flex h-[55dvh] items-center justify-center bg-neutral-100 lg:h-auto lg:flex-1"
         >
-          <p className="text-neutral-500">3D viewer coming soon</p>
+          <p className="text-neutral-500">Aquí va el visor 3D</p>
         </section>
 
         <aside className="border-t border-neutral-200 p-4 sm:p-6 lg:w-96 lg:border-t-0 lg:border-l">
-          <h1 className="text-2xl font-semibold">Design your sneaker</h1>
+          <h1 className="text-2xl font-semibold">Diseña tu zapatilla</h1>
           <p className="mt-2 text-neutral-600">
-            Pick colors and materials for each part.
+            Elige el color y el material de cada parte.
           </p>
         </aside>
       </main>

@@ -1,2 +1,2 @@
-# Store every text file with LF line endings, on any operating system
+# Guarda los archivos de texto con saltos de línea LF en cualquier sistema operativo
 * text=auto eol=lf

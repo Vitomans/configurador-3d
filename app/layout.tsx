@@ -8,9 +8,9 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "Pisada · 3D Sneaker Configurator",
+  title: "Pisada · Configurador 3D de zapatillas",
   description:
-    "Design your own sneaker in 3D: pick colors and materials for each part and share your design with a link.",
+    "Diseña tu zapatilla en 3D: elige el color y el material de cada parte y comparte tu diseño con un link.",
 };
 
 export default function RootLayout({
@@ -19,7 +19,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={geistSans.variable}>
+    <html lang="es" className={geistSans.variable}>
       <body className="bg-background font-sans text-foreground antialiased">
         {children}
       </body>
