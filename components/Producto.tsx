@@ -1,39 +1,72 @@
-import { useGLTF } from "@react-three/drei";
+import { useState } from "react";
+import { useCursor, useGLTF } from "@react-three/drei";
+import type { ThreeElements } from "@react-three/fiber";
 import type { Mesh } from "three";
+import {
+  ACABADOS,
+  COLOR_INTERIOR,
+  COLORES,
+  PARTES,
+  type ParteId,
+} from "@/lib/opciones";
+import { useConfigurador } from "@/store/useConfigurador";
 
 const RUTA_MODELO = "/modelos/zapatilla.glb";
 
-// Colores de ejemplo de cada parte. Más adelante los va a elegir el usuario en el panel.
-const PARTES: Record<string, string> = {
-  cuerpo: "#2b4c7e",
-  franjas: "#f2f2f2",
-  suela: "#f5f5f5",
-  cordones: "#f2f2f2",
-  detalles: "#e4572e",
-  interior: "#3a3a3a",
-};
-
 export default function Producto() {
   const { nodes, materials } = useGLTF(RUTA_MODELO);
+  const configuracion = useConfigurador((estado) => estado.configuracion);
+  const elegirParte = useConfigurador((estado) => estado.elegirParte);
+
+  // Muestra la "manito" del mouse cuando está sobre una parte que se puede elegir
+  const [parteBajoElMouse, setParteBajoElMouse] = useState<ParteId | null>(null);
+  useCursor(parteBajoElMouse !== null);
 
   return (
     <group>
-      {Object.entries(PARTES).map(([parte, color]) => {
-        const pieza = nodes[parte] as Mesh;
+      {PARTES.map(({ id }) => {
+        const { color, acabado } = configuracion[id];
         return (
-          // El modelo está comprimido: cada pieza guarda su posición y su tamaño
-          // aparte de su forma, así que hay que copiar los tres.
-          <mesh
-            key={parte}
-            geometry={pieza.geometry}
-            position={pieza.position}
-            scale={pieza.scale}
-            material={materials[parte]}
-            material-color={color}
+          <Pieza
+            key={id}
+            nodo={nodes[id] as Mesh}
+            material={materials[id]}
+            material-color={COLORES[color].hex}
+            material-roughness={ACABADOS[acabado].rugosidad}
+            onClick={(evento) => {
+              // Si el puntero se movió más de 2 px, el usuario estaba girando la zapatilla
+              if (evento.delta > 2) return;
+              evento.stopPropagation(); // solo cuenta la parte de más adelante
+              elegirParte(id);
+            }}
+            onPointerOver={(evento) => {
+              evento.stopPropagation();
+              setParteBajoElMouse(id);
+            }}
+            onPointerOut={() => setParteBajoElMouse(null)}
           />
         );
       })}
+
+      <Pieza
+        nodo={nodes.interior as Mesh}
+        material={materials.interior}
+        material-color={COLOR_INTERIOR}
+      />
     </group>
+  );
+}
+
+// Dibuja una pieza del modelo. El modelo está comprimido: cada pieza guarda su
+// posición y su tamaño aparte de su forma, así que hay que copiar los tres.
+function Pieza({ nodo, ...props }: { nodo: Mesh } & ThreeElements["mesh"]) {
+  return (
+    <mesh
+      geometry={nodo.geometry}
+      position={nodo.position}
+      scale={nodo.scale}
+      {...props}
+    />
   );
 }
 
