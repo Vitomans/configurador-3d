@@ -1,3 +1,5 @@
+import Visor from "@/components/Visor";
+
 export default function Home() {
   return (
     <div className="flex min-h-dvh flex-col">
@@ -9,9 +11,9 @@ export default function Home() {
       <main className="flex flex-1 flex-col lg:flex-row">
         <section
           aria-label="Visor 3D"
-          className="flex h-[55dvh] items-center justify-center bg-neutral-100 lg:h-auto lg:flex-1"
+          className="h-[55dvh] bg-neutral-100 lg:h-auto lg:flex-1"
         >
-          <p className="text-neutral-500">Aquí va el visor 3D</p>
+          <Visor />
         </section>
 
         <aside className="border-t border-neutral-200 p-4 sm:p-6 lg:w-96 lg:border-t-0 lg:border-l">
