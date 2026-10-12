@@ -7,8 +7,10 @@ import { useConfigurador } from "@/store/useConfigurador";
 // Cada grupo de opciones usa botones de radio (input type="radio") escondidos,
 // con un diseño propio encima. Así funcionan con el teclado (flechas) y con
 // lectores de pantalla sin programar nada extra.
+// "relative" deja el botón escondido dentro de su etiqueta; si no, se ubica fuera
+// del panel y estira la página.
 const estiloBoton =
-  "cursor-pointer rounded-full border border-neutral-300 px-4 py-2 text-sm transition-colors hover:border-neutral-900 has-checked:border-neutral-900 has-checked:bg-neutral-900 has-checked:text-white has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-blue-600";
+  "relative cursor-pointer rounded-full border border-neutral-300 px-4 py-2 text-sm transition-colors hover:border-neutral-900 has-checked:border-neutral-900 has-checked:bg-neutral-900 has-checked:text-white has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-blue-600";
 
 // Texto que avisa cuánto suma una opción, por ejemplo " (+US$ 10)", o nada si no suma
 function textoRecargo(recargo = 0) {
@@ -58,7 +60,7 @@ export default function PanelOpciones() {
             <label
               key={id}
               title={COLORES[id].nombre + textoRecargo(parte.recargos?.[id])}
-              className="size-11 cursor-pointer rounded-full border border-black/15 ring-neutral-900 ring-offset-2 transition-shadow has-checked:ring-2 has-focus-visible:outline-2 has-focus-visible:outline-offset-4 has-focus-visible:outline-blue-600"
+              className="relative size-11 cursor-pointer rounded-full border border-black/15 ring-neutral-900 ring-offset-2 transition-shadow has-checked:ring-2 has-focus-visible:outline-2 has-focus-visible:outline-offset-4 has-focus-visible:outline-blue-600"
               style={{ backgroundColor: COLORES[id].hex }}
             >
               <input
