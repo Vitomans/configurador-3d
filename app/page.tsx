@@ -1,5 +1,6 @@
 import Visor from "@/components/Visor";
 import PanelOpciones from "@/components/PanelOpciones";
+import Resumen from "@/components/Resumen";
 
 export default function Home() {
   return (
@@ -23,6 +24,7 @@ export default function Home() {
             Elige el color y el material de cada parte.
           </p>
           <PanelOpciones />
+          <Resumen />
         </aside>
       </main>
     </div>

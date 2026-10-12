@@ -1,6 +1,7 @@
 "use client";
 
 import { ACABADOS, COLORES, PARTES, type AcabadoId } from "@/lib/opciones";
+import { formatearPrecio } from "@/lib/precio";
 import { useConfigurador } from "@/store/useConfigurador";
 
 // Cada grupo de opciones usa botones de radio (input type="radio") escondidos,
@@ -8,6 +9,11 @@ import { useConfigurador } from "@/store/useConfigurador";
 // lectores de pantalla sin programar nada extra.
 const estiloBoton =
   "cursor-pointer rounded-full border border-neutral-300 px-4 py-2 text-sm transition-colors hover:border-neutral-900 has-checked:border-neutral-900 has-checked:bg-neutral-900 has-checked:text-white has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-blue-600";
+
+// Texto que avisa cuánto suma una opción, por ejemplo " (+US$ 10)", o nada si no suma
+function textoRecargo(recargo = 0) {
+  return recargo > 0 ? ` (+${formatearPrecio(recargo)})` : "";
+}
 
 export default function PanelOpciones() {
   const { configuracion, parteActiva, elegirParte, cambiarColor, cambiarAcabado } =
@@ -41,13 +47,17 @@ export default function PanelOpciones() {
 
       <fieldset>
         <legend className="text-sm font-medium">
-          Color: <span className="font-normal">{COLORES[color].nombre}</span>
+          Color:{" "}
+          <span className="font-normal">
+            {COLORES[color].nombre}
+            {textoRecargo(parte.recargos?.[color])}
+          </span>
         </legend>
         <div className="mt-2 flex flex-wrap gap-3">
           {parte.colores.map((id) => (
             <label
               key={id}
-              title={COLORES[id].nombre}
+              title={COLORES[id].nombre + textoRecargo(parte.recargos?.[id])}
               className="size-11 cursor-pointer rounded-full border border-black/15 ring-neutral-900 ring-offset-2 transition-shadow has-checked:ring-2 has-focus-visible:outline-2 has-focus-visible:outline-offset-4 has-focus-visible:outline-blue-600"
               style={{ backgroundColor: COLORES[id].hex }}
             >
@@ -58,7 +68,9 @@ export default function PanelOpciones() {
                 checked={color === id}
                 onChange={() => cambiarColor(parteActiva, id)}
               />
-              <span className="sr-only">{COLORES[id].nombre}</span>
+              <span className="sr-only">
+                {COLORES[id].nombre + textoRecargo(parte.recargos?.[id])}
+              </span>
             </label>
           ))}
         </div>
@@ -76,7 +88,7 @@ export default function PanelOpciones() {
                 checked={acabado === id}
                 onChange={() => cambiarAcabado(parteActiva, id)}
               />
-              {ACABADOS[id].nombre}
+              {ACABADOS[id].nombre + textoRecargo(ACABADOS[id].recargo)}
             </label>
           ))}
         </div>

@@ -13,6 +13,7 @@ type EstadoConfigurador = {
   elegirParte: (parte: ParteId) => void;
   cambiarColor: (parte: ParteId, color: ColorId) => void;
   cambiarAcabado: (parte: ParteId, acabado: AcabadoId) => void;
+  cargarConfiguracion: (configuracion: Configuracion) => void; // por ejemplo, la que viene en un link
 };
 
 // Estado compartido entre el panel y el visor 3D. Cualquier componente puede leerlo
@@ -40,4 +41,6 @@ export const useConfigurador = create<EstadoConfigurador>()((set) => ({
         [parte]: { ...estado.configuracion[parte], acabado },
       },
     })),
+
+  cargarConfiguracion: (configuracion) => set({ configuracion }),
 }));
