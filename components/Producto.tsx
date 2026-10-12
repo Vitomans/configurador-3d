@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useCursor, useGLTF } from "@react-three/drei";
 import type { ThreeElements } from "@react-three/fiber";
 import type { Mesh } from "three";
@@ -13,7 +13,10 @@ import { useConfigurador } from "@/store/useConfigurador";
 
 const RUTA_MODELO = "/modelos/zapatilla.glb";
 
-export default function Producto() {
+// alCargar avisa al visor que el modelo ya está listo, para esconder el aviso de carga
+export default function Producto({ alCargar }: { alCargar: () => void }) {
+  // useGLTF "suspende" este componente hasta que el modelo termina de descargarse,
+  // así que si este código se ejecuta, el modelo ya está listo.
   const { nodes, materials } = useGLTF(RUTA_MODELO);
   const configuracion = useConfigurador((estado) => estado.configuracion);
   const elegirParte = useConfigurador((estado) => estado.elegirParte);
@@ -21,6 +24,10 @@ export default function Producto() {
   // Muestra la "manito" del mouse cuando está sobre una parte que se puede elegir
   const [parteBajoElMouse, setParteBajoElMouse] = useState<ParteId | null>(null);
   useCursor(parteBajoElMouse !== null);
+
+  useEffect(() => {
+    alCargar();
+  }, [alCargar]);
 
   return (
     <group>
