@@ -11,8 +11,8 @@ A product configurator for a fictional sneaker store. Rotate the sneaker in 3D, 
 - Three.js with React Three Fiber and drei
 - glTF Transform and sharp, to prepare the 3D model
 - Zustand for shared state
-- Vitest and Playwright *(coming soon)*
-- GitHub Actions: lint, type check and build on every push
+- Vitest for unit tests (Playwright end-to-end test *coming soon*)
+- GitHub Actions: lint, type check, tests and build on every push
 
 ## Run it locally
 
@@ -33,6 +33,7 @@ Then open [http://localhost:3000](http://localhost:3000).
 | `npm run build` | Builds the app for production |
 | `npm run lint` | Checks the code with ESLint |
 | `npm run typecheck` | Checks the TypeScript types |
+| `npm test` | Runs the unit tests |
 | `npm run modelo` | Rebuilds `public/modelos/zapatilla.glb` from the original model |
 
 ## Credits
