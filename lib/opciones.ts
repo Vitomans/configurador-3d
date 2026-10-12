@@ -1,5 +1,5 @@
 /**
- * Catálogo del configurador: las partes de la zapatilla, los colores y los acabados.
+ * Catálogo del configurador: las partes de la zapatilla, los colores, los acabados y los precios.
  * Es solo información (datos), separada de la parte visual.
  */
 
@@ -28,7 +28,11 @@ export type Parte = {
   id: ParteId;
   nombre: string;
   colores: ColorId[]; // los colores que se pueden elegir para esta parte
+  recargos?: Partial<Record<ColorId, number>>; // colores especiales que cuestan más (en USD)
 };
+
+// Precio de la zapatilla sin recargos (en USD)
+export const PRECIO_BASE = 120;
 
 export const PARTES: Parte[] = [
   {
@@ -45,6 +49,7 @@ export const PARTES: Parte[] = [
     id: "suela",
     nombre: "Suela",
     colores: ["blanco", "negro", "gris-claro", "crema", "caramelo"],
+    recargos: { caramelo: 10 },
   },
   {
     id: "cordones",
@@ -62,9 +67,13 @@ export type AcabadoId = "mate" | "brillante";
 
 // La "rugosidad" (roughness) dice qué tan áspera es la superficie:
 // cerca de 1 la luz se reparte (mate) y cerca de 0 se refleja como un espejo (brillante).
-export const ACABADOS: Record<AcabadoId, { nombre: string; rugosidad: number }> = {
-  mate: { nombre: "Mate", rugosidad: 0.85 },
-  brillante: { nombre: "Brillante", rugosidad: 0.3 },
+// El recargo se cobra por cada parte que lleva ese acabado.
+export const ACABADOS: Record<
+  AcabadoId,
+  { nombre: string; rugosidad: number; recargo: number }
+> = {
+  mate: { nombre: "Mate", rugosidad: 0.85, recargo: 0 },
+  brillante: { nombre: "Brillante", rugosidad: 0.3, recargo: 8 },
 };
 
 // Lo que eligió el usuario para cada parte
