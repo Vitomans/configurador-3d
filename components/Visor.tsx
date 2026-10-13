@@ -9,7 +9,22 @@ import {
   OrbitControls,
 } from "@react-three/drei";
 import Cargando from "./Cargando";
+import LimiteDeError from "./LimiteDeError";
 import Producto from "./Producto";
+
+// Lo que se ve si el 3D no funciona (por ejemplo, si el navegador no tiene WebGL)
+function SinVisor() {
+  return (
+    <div
+      role="alert"
+      className="absolute inset-0 flex items-center justify-center p-6 text-center text-sm text-neutral-600"
+    >
+      No se pudo mostrar la zapatilla en 3D en este navegador.
+      <br />
+      Igual puedes elegir los colores y copiar el link.
+    </div>
+  );
+}
 
 export default function Visor() {
   // Empieza en true para que el aviso de carga se vea desde el primer momento.
@@ -17,7 +32,8 @@ export default function Visor() {
   const [cargando, setCargando] = useState(true);
 
   return (
-    <>
+    // Si el 3D falla, solo el visor muestra el aviso: el panel y el precio siguen funcionando
+    <LimiteDeError alternativa={<SinVisor />}>
       <Canvas camera={{ position: [3.5, 2, 3.5], fov: 40 }} dpr={[1, 2]}>
         {/* El modelo se carga en segundo plano; mientras tanto se ve el aviso de carga */}
         <Suspense fallback={null}>
@@ -49,6 +65,6 @@ export default function Visor() {
       </Canvas>
 
       {cargando && <Cargando />}
-    </>
+    </LimiteDeError>
   );
 }
