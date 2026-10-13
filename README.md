@@ -97,6 +97,8 @@ npm run e2e
 
 **A click picks a part, a drag rotates.** Both start with the same mouse button. A click only selects a part if the pointer moved less than 2 pixels, and it stops there, so only the front part counts, not the ones behind it.
 
+**The shadow is calculated once.** The shoe never moves: the camera turns around it. So the soft shadow under it is drawn once, when the model is ready, instead of on every frame. Without a graphics card, that takes the page from 9 to 14 frames per second.
+
 **Studio lights without an image to download.** The reflections come from a few light panels built in code (drei's `Lightformer`), not from an HDR photo. There is one file less to download, and the materials still look realistic.
 
 **The loading screen is plain HTML.** It sits on top of the 3D canvas instead of inside it, so it comes in the server's HTML and shows before JavaScript loads. The model starts downloading as soon as its code loads (`useGLTF.preload`), and the 3D shoe tells the viewer when it's ready.
@@ -111,7 +113,7 @@ npm run e2e
 
 - **Unit tests (Vitest):** 12 tests for the price and the link: surcharges, short links, reading a link back and ignoring invalid values.
 - **End-to-end tests (Playwright):** 5 tests in a real browser, on a desktop screen and on a small phone (360 × 740). In CI they run against the production build. They check that picking options updates the price and the link, "Copiar link" copies it, a shared link opens the same design, invalid values are ignored, the page never scrolls as a whole, and without WebGL the panel still works.
-- **CI:** GitHub Actions runs lint, type check, unit tests, build and the end-to-end tests on every push. If an end-to-end test fails, it saves the Playwright trace to see what happened.
+- **CI:** GitHub Actions runs lint, type check, unit tests, build and the end-to-end tests on every push. The CI machine has no graphics card, so the browser draws the 3D with the CPU and the model takes several seconds to show up. The tests give it up to 30 seconds. If a test fails, it runs once more and saves the Playwright trace to see what happened.
 
 ## Known limitations
 
