@@ -38,10 +38,19 @@ export default function Visor() {
         {/* El modelo se carga en segundo plano; mientras tanto se ve el aviso de carga */}
         <Suspense fallback={null}>
           <Producto alCargar={() => setCargando(false)} />
-        </Suspense>
 
-        {/* Sombra suave bajo la zapatilla */}
-        <ContactShadows position={[0, 0, 0]} scale={6} blur={2.5} far={2} opacity={0.5} />
+          {/* Sombra suave bajo la zapatilla. La zapatilla nunca se mueve (gira la cámara),
+              así que la sombra se calcula una sola vez (frames={1}) y no en cada cuadro.
+              Va dentro del Suspense para calcularla cuando la zapatilla ya está cargada. */}
+          <ContactShadows
+            position={[0, 0, 0]}
+            scale={6}
+            blur={2.5}
+            far={2}
+            opacity={0.5}
+            frames={1}
+          />
+        </Suspense>
 
         {/* Iluminación tipo estudio de fotos: paneles de luz alrededor del producto.
             Los materiales reflejan estos paneles, por eso se ven realistas. */}
