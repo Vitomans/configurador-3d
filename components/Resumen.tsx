@@ -42,11 +42,14 @@ export default function Resumen() {
     // mt-auto: si sobra espacio (en escritorio), lo empuja al fondo.
     <div className="sticky bottom-0 mt-auto flex items-center justify-between gap-4 border-t border-neutral-200 bg-white px-4 py-3 sm:px-6 sm:py-4">
       <div>
-        <p className="text-sm text-neutral-500">Precio</p>
-        {/* aria-live hace que los lectores de pantalla anuncien el precio cuando cambia */}
-        <p className="text-2xl font-semibold" aria-live="polite">
+        <label htmlFor="precio" className="block text-sm text-neutral-500">
+          Precio
+        </label>
+        {/* <output> es la etiqueta de HTML para el resultado de un cálculo.
+            aria-live hace que los lectores de pantalla anuncien el precio cuando cambia */}
+        <output id="precio" className="block text-2xl font-semibold" aria-live="polite">
           {formatearPrecio(calcularPrecio(configuracion))}
-        </p>
+        </output>
       </div>
 
       <button
