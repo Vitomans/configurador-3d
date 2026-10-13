@@ -10,40 +10,40 @@ jobs:
     # Versión fija: Playwright instala sus dependencias según la versión de Ubuntu
     runs-on: ubuntu-24.04
     steps:
-      - name: Checkout code
+      - name: Descargar el código
         uses: actions/checkout@v7
 
-      - name: Set up Node.js
+      - name: Instalar Node.js
         uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
           cache: npm
 
-      - name: Install dependencies
+      - name: Instalar las dependencias
         run: npm ci
 
-      - name: Lint
+      - name: Revisar el estilo (lint)
         run: npm run lint
 
-      - name: Type check
+      - name: Revisar los tipos
         run: npm run typecheck
 
-      - name: Test
+      - name: Tests unitarios
         run: npm test
 
-      - name: Build
+      - name: Compilar (build)
         run: npm run build
 
-      - name: Install Playwright browser
+      - name: Instalar el navegador de Playwright
         run: npx playwright install --with-deps chromium
 
-      - name: End-to-end tests
+      - name: Tests e2e
         run: npm run e2e
 
-      - name: Upload Playwright traces
+      - name: Guardar las trazas de Playwright
         if: failure()
         uses: actions/upload-artifact@v7
         with:
-          name: playwright-traces
+          name: trazas-playwright
           path: test-results/
           retention-days: 7
