@@ -10,13 +10,17 @@ export default defineConfig({
   // En CI se reintenta una vez, por si el navegador tarda más de la cuenta
   retries: enCI ? 1 : 0,
   reporter: enCI ? "github" : "list",
+  // El CI no tiene tarjeta de video: el 3D se dibuja con el procesador y todo va más lento
+  timeout: enCI ? 60_000 : 30_000,
+  expect: { timeout: enCI ? 10_000 : 5_000 },
   use: {
     baseURL: "http://localhost:3000",
     locale: "es-CL",
     // Para poder leer lo que copió el botón "Copiar link"
     permissions: ["clipboard-read", "clipboard-write"],
-    // Si un test falla, guarda la traza (capturas y pasos) para ver qué pasó
-    trace: "retain-on-failure",
+    // La traza (capturas y pasos) sirve para ver qué pasó cuando un test falla. En CI se graba
+    // solo en el segundo intento, porque grabarla hace más lenta la página
+    trace: enCI ? "on-first-retry" : "retain-on-failure",
   },
   // Los mismos tests corren en una pantalla de escritorio y en un celular chico
   // (360 × 740): en una pantalla chica se notan antes los problemas de espacio

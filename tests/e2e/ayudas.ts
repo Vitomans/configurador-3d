@@ -1,9 +1,10 @@
 import { expect, type Page } from "@playwright/test";
 
-// Abre la página y espera a que la zapatilla termine de cargar
+// Abre la página y espera a que la zapatilla termine de cargar. Sin tarjeta de video
+// (como en el CI) puede tardar varios segundos, así que se le da más tiempo
 export async function abrir(page: Page, ruta = "/") {
   await page.goto(ruta);
-  await expect(page.getByText("Cargando zapatilla…")).toBeHidden();
+  await expect(page.getByText("Cargando zapatilla…")).toBeHidden({ timeout: 30_000 });
 }
 
 export const precio = (page: Page) => page.getByLabel("Precio", { exact: true });
