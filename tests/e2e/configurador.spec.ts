@@ -1,21 +1,5 @@
-import { expect, test, type Page } from "@playwright/test";
-
-// Abre la página y espera a que la zapatilla termine de cargar
-async function abrir(page: Page, ruta = "/") {
-  await page.goto(ruta);
-  await expect(page.getByText("Cargando zapatilla…")).toBeHidden();
-}
-
-const precio = (page: Page) => page.getByLabel("Precio", { exact: true });
-const opcion = (page: Page, nombre: string) =>
-  page.getByRole("radio", { name: nombre, exact: true });
-
-// Los botones de radio están escondidos y encima va su etiqueta con el diseño,
-// así que se hace clic en la etiqueta, como lo haría una persona
-async function elegir(page: Page, nombre: string) {
-  await page.locator("label", { has: opcion(page, nombre) }).click();
-  await expect(opcion(page, nombre)).toBeChecked();
-}
+import { expect, test } from "@playwright/test";
+import { abrir, elegir, opcion, precio } from "./ayudas";
 
 test("cambia colores y acabados, actualiza el precio y el link", async ({ page }) => {
   await abrir(page);
