@@ -2,11 +2,11 @@
 
 A product configurator for a fictional sneaker store. Rotate the sneaker in 3D, change the color and finish of each part, see the price update and share your exact design with a link.
 
+**Live demo: [pisada-3d.vercel.app](https://pisada-3d.vercel.app)**
+
 ![Designing a sneaker: red body, then a glossy caramel sole picked by clicking on the shoe, a full turn and "Copy link"](docs/demo.gif)
 
 *The body turns red. Clicking the sole on the 3D shoe selects it in the panel. A caramel color (+US$ 10) and a glossy finish (+US$ 8) raise the price, and the address bar keeps the design. Then a full turn, and "Copiar link" copies the link.*
-
-<!-- Live demo: add the link here after deploying -->
 
 ## Features
 
