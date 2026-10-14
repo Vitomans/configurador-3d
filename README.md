@@ -1,5 +1,7 @@
 # Pisada · Configurador 3D de zapatillas
 
+[![Estado del CI](https://github.com/Vitomans/configurador-3d/actions/workflows/ci.yml/badge.svg)](https://github.com/Vitomans/configurador-3d/actions/workflows/ci.yml)
+
 Un configurador de producto para una tienda de zapatillas ficticia. Gira la zapatilla en 3D, cambia el color y el acabado de cada parte, mira cómo cambia el precio y comparte tu diseño exacto con un link.
 
 **Demo en vivo: [pisada-3d.vercel.app](https://pisada-3d.vercel.app)**
