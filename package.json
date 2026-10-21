@@ -10,6 +10,7 @@
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
     "modelo": "node scripts/preparar-modelo.mts",
+    "capas": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/sacar-capas.mts",
     "e2e": "playwright test"
   },
   "dependencies": {
