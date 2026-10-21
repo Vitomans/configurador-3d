@@ -14,6 +14,7 @@ type EstadoConfigurador = {
   cambiarColor: (parte: ParteId, color: ColorId) => void;
   cambiarAcabado: (parte: ParteId, acabado: AcabadoId) => void;
   cargarConfiguracion: (configuracion: Configuracion) => void; // por ejemplo, la que viene en un link
+  aplicarCombinacion: (configuracion: Configuracion) => void; // una combinación lista o una al azar
 };
 
 // Estado compartido entre el panel y el visor 3D. Cualquier componente puede leerlo
@@ -43,4 +44,7 @@ export const useConfigurador = create<EstadoConfigurador>()((set) => ({
     })),
 
   cargarConfiguracion: (configuracion) => set({ configuracion }),
+
+  // Cambia todo el diseño y vuelve al cuerpo, así la cámara muestra la zapatilla completa
+  aplicarCombinacion: (configuracion) => set({ configuracion, parteActiva: "cuerpo" }),
 }));

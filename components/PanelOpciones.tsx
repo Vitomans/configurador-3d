@@ -1,5 +1,6 @@
 "use client";
 
+import { COMBINACIONES, coloresDe, combinacionAlAzar, sonIguales } from "@/lib/combinaciones";
 import { ACABADOS, COLORES, PARTES, type AcabadoId } from "@/lib/opciones";
 import { formatearPrecio } from "@/lib/precio";
 import { useConfigurador } from "@/store/useConfigurador";
@@ -30,15 +31,90 @@ function textoRecargo(recargo = 0) {
   return recargo > 0 ? ` (+${formatearPrecio(recargo)})` : "";
 }
 
+// Un dado, para el botón "Sorpréndeme". Es solo un adorno: aria-hidden
+function Dado() {
+  return (
+    <svg
+      aria-hidden
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      className="size-4 transition-transform motion-safe:group-hover:rotate-12"
+    >
+      <rect x="3" y="3" width="18" height="18" rx="4" />
+      <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" stroke="none" />
+      <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none" />
+      <circle cx="15.5" cy="15.5" r="1.5" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
 export default function PanelOpciones() {
-  const { configuracion, parteActiva, elegirParte, cambiarColor, cambiarAcabado } =
-    useConfigurador();
+  const {
+    configuracion,
+    parteActiva,
+    elegirParte,
+    cambiarColor,
+    cambiarAcabado,
+    aplicarCombinacion,
+  } = useConfigurador();
 
   const parte = PARTES.find((p) => p.id === parteActiva)!;
   const { color, acabado } = configuracion[parteActiva];
 
   return (
     <div className="mt-6 space-y-6">
+      {/* Un grupo con nombre, como los fieldset de abajo. No es un fieldset porque su título
+          (legend) no deja poner el botón "Sorpréndeme" al lado */}
+      <div role="group" aria-labelledby="titulo-combinaciones">
+        <div className="flex items-center justify-between gap-2">
+          <p id="titulo-combinaciones" className="text-sm font-medium">
+            Combinaciones listas
+          </p>
+          <button
+            type="button"
+            onClick={() => aplicarCombinacion(combinacionAlAzar())}
+            className="group -my-1.5 flex cursor-pointer items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium text-marca-oscuro transition-colors hover:bg-orange-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+          >
+            <Dado />
+            Sorpréndeme
+          </button>
+        </div>
+        {/* Una combinación queda marcada si el diseño es justo ese. Al cambiar algo
+            a mano, ninguna queda marcada.
+            En el celular van en una fila que se desliza de lado, para que los pasos de abajo
+            se sigan viendo. La fila llega hasta los bordes del panel (-mx-4 con px-4), y el
+            espacio que sobra (px-4 y py-1) es para que no se corte el borde de foco */}
+        <div className="-mx-4 mt-1 flex gap-2 overflow-x-auto px-4 py-1 sm:-mx-6 sm:px-6 lg:mx-0 lg:flex-wrap lg:overflow-visible lg:px-0">
+          {COMBINACIONES.map((combinacion) => (
+            <label
+              key={combinacion.nombre}
+              className={`group flex shrink-0 items-center gap-2 ${estiloBoton}`}
+            >
+              <input
+                type="radio"
+                name="combinacion"
+                className="sr-only"
+                checked={sonIguales(configuracion, combinacion.configuracion)}
+                onChange={() => aplicarCombinacion(combinacion.configuracion)}
+              />
+              {/* Los colores de la combinación, como una muestra. El lector de pantalla lee solo el nombre */}
+              <span aria-hidden className="flex -space-x-1">
+                {coloresDe(combinacion.configuracion).map((id) => (
+                  <span
+                    key={id}
+                    className="size-3.5 rounded-full border border-black/20 ring-2 ring-white group-has-checked:border-white/40 group-has-checked:ring-stone-900"
+                    style={{ backgroundColor: COLORES[id].hex }}
+                  />
+                ))}
+              </span>
+              {combinacion.nombre}
+            </label>
+          ))}
+        </div>
+      </div>
+
       <fieldset>
         <legend className="text-sm font-medium">
           <Paso numero={1} />
