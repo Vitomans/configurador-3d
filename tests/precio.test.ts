@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { CONFIGURACION_INICIAL, type Configuracion } from "@/lib/opciones";
-import { calcularPrecio, formatearPrecio } from "@/lib/precio";
+import { CONFIGURACION_INICIAL, PARTES, type Configuracion } from "@/lib/opciones";
+import { calcularPrecio, formatearPrecio, recargoDeParte } from "@/lib/precio";
 
 describe("calcularPrecio", () => {
   it("cobra solo el precio base cuando todo es mate y sin colores especiales", () => {
@@ -36,6 +36,35 @@ describe("calcularPrecio", () => {
     };
 
     expect(calcularPrecio(todoBrillante)).toBe(120 + 5 * 8 + 10);
+  });
+});
+
+describe("recargoDeParte", () => {
+  const suela = PARTES.find((parte) => parte.id === "suela")!;
+
+  it("no suma nada si la parte es mate y su color no es especial", () => {
+    expect(recargoDeParte(suela, CONFIGURACION_INICIAL)).toBe(0);
+  });
+
+  it("suma el acabado y el color especial de la misma parte", () => {
+    const configuracion: Configuracion = {
+      ...CONFIGURACION_INICIAL,
+      suela: { color: "caramelo", acabado: "brillante" },
+    };
+
+    expect(recargoDeParte(suela, configuracion)).toBe(8 + 10);
+  });
+
+  it("el precio es la base más el recargo de cada parte", () => {
+    const configuracion: Configuracion = {
+      ...CONFIGURACION_INICIAL,
+      cuerpo: { color: "rojo", acabado: "brillante" },
+      suela: { color: "caramelo", acabado: "brillante" },
+    };
+    const recargos = PARTES.map((parte) => recargoDeParte(parte, configuracion));
+
+    expect(recargos).toEqual([8, 0, 18, 0, 0]);
+    expect(calcularPrecio(configuracion)).toBe(120 + 8 + 18);
   });
 });
 

@@ -89,3 +89,9 @@ export const CONFIGURACION_INICIAL: Configuracion = {
 
 // El forro interior no se puede cambiar: siempre va en este color
 export const COLOR_INTERIOR = "#3a3a3a";
+
+// Las tallas, en la numeración europea (la que se usa en Chile). No cambian el precio.
+// "as const" hace que TypeScript sepa cuáles son: el tipo Talla es 36 | 37 | ... | 45
+export const TALLAS = [36, 37, 38, 39, 40, 41, 42, 43, 44, 45] as const;
+
+export type Talla = (typeof TALLAS)[number];
