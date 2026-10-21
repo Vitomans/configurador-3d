@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { CONFIGURACION_INICIAL, PARTES, type Configuracion } from "@/lib/opciones";
-import { calcularPrecio, formatearPrecio, recargoDeParte } from "@/lib/precio";
+import { calcularPrecio, formatearPrecio, recargoDeParte, recargoDelTexto } from "@/lib/precio";
 
 describe("calcularPrecio", () => {
   it("cobra solo el precio base cuando todo es mate y sin colores especiales", () => {
@@ -36,6 +36,19 @@ describe("calcularPrecio", () => {
     };
 
     expect(calcularPrecio(todoBrillante)).toBe(120 + 5 * 8 + 10);
+  });
+
+  it("suma US$ 5 si lleva texto en el talón, sin importar el largo", () => {
+    expect(calcularPrecio(CONFIGURACION_INICIAL, "")).toBe(120);
+    expect(calcularPrecio(CONFIGURACION_INICIAL, "V")).toBe(125);
+    expect(calcularPrecio(CONFIGURACION_INICIAL, "VMX")).toBe(125);
+  });
+});
+
+describe("recargoDelTexto", () => {
+  it("no suma nada sin texto y US$ 5 con texto", () => {
+    expect(recargoDelTexto("")).toBe(0);
+    expect(recargoDelTexto("10")).toBe(5);
   });
 });
 

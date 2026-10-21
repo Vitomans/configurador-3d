@@ -7,16 +7,20 @@ import {
   type Configuracion,
   type Parte,
 } from "@/lib/opciones";
+import { limpiarTexto } from "@/lib/texto";
 
 // Nombre del parámetro del link que guarda el acabado de una parte, por ejemplo "acabado-suela"
 const parametroAcabado = (parte: Parte) => `acabado-${parte.id}`;
 
+// Nombre del parámetro del link que guarda el texto del talón, por ejemplo "texto=VM"
+const PARAMETRO_TEXTO = "texto";
+
 /**
- * Convierte el diseño en los parámetros del link, por ejemplo
- * "cuerpo=rojo&acabado-suela=brillante".
+ * Convierte el diseño (los colores, los acabados y el texto del talón) en los parámetros
+ * del link, por ejemplo "cuerpo=rojo&acabado-suela=brillante&texto=VM".
  * Solo guarda lo que cambió respecto al diseño inicial, para que el link sea corto.
  */
-export function configuracionAParametros(configuracion: Configuracion): string {
+export function configuracionAParametros(configuracion: Configuracion, texto = ""): string {
   const parametros = new URLSearchParams();
 
   for (const parte of PARTES) {
@@ -27,7 +31,17 @@ export function configuracionAParametros(configuracion: Configuracion): string {
     if (acabado !== inicial.acabado) parametros.set(parametroAcabado(parte), acabado);
   }
 
+  if (texto) parametros.set(PARAMETRO_TEXTO, texto);
+
   return parametros.toString();
+}
+
+/**
+ * Lee el texto del talón que viene en el link. Pasa por el mismo filtro que el campo del
+ * panel: "texto=v.m" queda en "VM", y si no queda nada, la zapatilla va sin texto.
+ */
+export function parametrosATexto(parametros: URLSearchParams): string {
+  return limpiarTexto(parametros.get(PARAMETRO_TEXTO) ?? "");
 }
 
 /**

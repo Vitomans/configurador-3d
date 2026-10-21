@@ -1,4 +1,11 @@
-import { ACABADOS, PARTES, PRECIO_BASE, type Configuracion, type Parte } from "@/lib/opciones";
+import {
+  ACABADOS,
+  PARTES,
+  PRECIO_BASE,
+  RECARGO_TEXTO,
+  type Configuracion,
+  type Parte,
+} from "@/lib/opciones";
 
 /**
  * Cuánto le suma una parte al precio base: el recargo de su acabado y, si su color
@@ -10,21 +17,26 @@ export function recargoDeParte(parte: Parte, configuracion: Configuracion): numb
   return ACABADOS[acabado].recargo + (parte.recargos?.[color] ?? 0);
 }
 
+/** Cuánto suma el texto del talón: nada si no hay texto. */
+export function recargoDelTexto(texto: string): number {
+  return texto ? RECARGO_TEXTO : 0;
+}
+
 /**
- * Calcula el precio de una configuración: el precio base más los recargos
- * de cada parte (por el acabado y por los colores especiales).
+ * Calcula el precio de un diseño: el precio base más los recargos de cada parte
+ * (por el acabado y por los colores especiales) y el del texto del talón, si tiene.
  *
- * Es una función pura: con la misma configuración siempre devuelve el mismo
+ * Es una función pura: con el mismo diseño siempre devuelve el mismo
  * precio y no depende de React ni del 3D. Por eso es fácil de testear.
  */
-export function calcularPrecio(configuracion: Configuracion): number {
+export function calcularPrecio(configuracion: Configuracion, texto = ""): number {
   let total = PRECIO_BASE;
 
   for (const parte of PARTES) {
     total += recargoDeParte(parte, configuracion);
   }
 
-  return total;
+  return total + recargoDelTexto(texto);
 }
 
 /** Muestra un monto en dólares, por ejemplo 136 → "US$ 136". */

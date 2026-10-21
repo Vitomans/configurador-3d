@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { CONFIGURACION_INICIAL, type Configuracion } from "@/lib/opciones";
-import { configuracionAParametros, parametrosAConfiguracion } from "@/lib/url";
+import { configuracionAParametros, parametrosAConfiguracion, parametrosATexto } from "@/lib/url";
 
 const leer = (texto: string) => parametrosAConfiguracion(new URLSearchParams(texto));
 
@@ -19,6 +19,31 @@ describe("configuracionAParametros", () => {
     expect(configuracionAParametros(configuracion)).toBe(
       "cuerpo=rojo&acabado-suela=brillante",
     );
+  });
+
+  it("guarda el texto del talón al final, y nada si no lleva", () => {
+    expect(configuracionAParametros(CONFIGURACION_INICIAL, "VM")).toBe("texto=VM");
+    expect(configuracionAParametros(CONFIGURACION_INICIAL, "")).toBe("");
+  });
+});
+
+describe("parametrosATexto", () => {
+  const leerTexto = (texto: string) => parametrosATexto(new URLSearchParams(texto));
+
+  it("recupera el texto que se guardó en el link", () => {
+    expect(leerTexto(configuracionAParametros(CONFIGURACION_INICIAL, "Ñ10"))).toBe("Ñ10");
+  });
+
+  it("limpia el texto igual que el campo del panel", () => {
+    expect(leerTexto("texto=v.m")).toBe("VM");
+    expect(leerTexto("texto=abcdef")).toBe("ABC");
+    // Un link con código no se ejecuta: quedan solo sus letras
+    expect(leerTexto("texto=%3Cscript%3E")).toBe("SCR");
+  });
+
+  it("sin texto válido, la zapatilla va sin texto", () => {
+    expect(leerTexto("")).toBe("");
+    expect(leerTexto("texto=!!!")).toBe("");
   });
 });
 

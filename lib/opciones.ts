@@ -90,6 +90,11 @@ export const CONFIGURACION_INICIAL: Configuracion = {
 // El forro interior no se puede cambiar: siempre va en este color
 export const COLOR_INTERIOR = "#3a3a3a";
 
+// El texto del talón: hasta 3 letras o números, como unas iniciales o el número de una camiseta.
+// Es opcional y cuesta lo mismo con 1, 2 o 3 caracteres (en USD)
+export const LARGO_MAXIMO_TEXTO = 3;
+export const RECARGO_TEXTO = 5;
+
 // Las tallas, en la numeración europea (la que se usa en Chile). No cambian el precio.
 // "as const" hace que TypeScript sepa cuáles son: el tipo Talla es 36 | 37 | ... | 45
 export const TALLAS = [36, 37, 38, 39, 40, 41, 42, 43, 44, 45] as const;
