@@ -17,6 +17,7 @@ Un configurador de producto para una tienda de zapatillas ficticia. Gira la zapa
 - **Visor 3D:** arrastra para girar y usa la rueda para acercar, o desliza y pellizca en el celular. Luces tipo estudio de fotos, un fondo de estudio y una sombra suave.
 - **Entrada animada:** al cargar, la cámara se acerca con un movimiento suave y la zapatilla gira sola hasta que la tocas. Si el sistema pide reducir el movimiento, se queda quieta.
 - **Cinco partes para personalizar:** cuerpo, franjas, suela, cordones y detalles. Cada una tiene 5 o 6 colores y un acabado mate o brillante.
+- **Combinaciones listas:** Clásica, Nocturna, Retro y Sendero cambian toda la zapatilla con un clic, "Sorpréndeme" arma una al azar y "Original" vuelve al diseño inicial. En el celular van en una fila que se desliza de lado.
 - **Elegir una parte en la zapatilla:** al hacer clic (o tocar) una parte del modelo 3D, el panel pasa a esa parte.
 - **La cámara va a la parte:** al elegir una parte, en el panel o en la zapatilla, la cámara gira suave hasta mostrarla y la parte da un destello. Con el mouse, la parte que está debajo se resalta, y los cambios de color y de acabado son suaves.
 - **Precio en vivo:** un precio base de US$ 120, más US$ 8 por cada parte brillante y US$ 10 por la suela caramelo.
@@ -43,6 +44,7 @@ Un configurador de producto para una tienda de zapatillas ficticia. Gira la zapa
 flowchart LR
     panel["Panel de opciones"] -->|"cambiarColor()<br/>cambiarAcabado()"| store[("Store de Zustand<br/>el diseño")]
     panel -->|"elegirParte()"| store
+    combinaciones["Combinaciones listas<br/>y Sorpréndeme"] -->|"aplicarCombinacion()"| store
     zapatilla["Clic en la zapatilla 3D"] -->|"elegirParte()"| store
     store --> producto["Zapatilla 3D<br/>color y rugosidad<br/>de cada parte"]
     store --> camara["Cámara<br/>vista de la parte elegida"]
@@ -63,7 +65,7 @@ configurador-3d/
 ├── assets/             ← la letra y la foto de la zapatilla que usa la imagen para compartir
 ├── components/         ← visor 3D, cámara, la zapatilla 3D, logo, panel de opciones, precio y botón para compartir
 ├── hooks/              ← mantiene sincronizados el diseño y el link
-├── lib/                ← catálogo, vistas de la cámara y funciones del precio, del link y del resalte (con tests)
+├── lib/                ← catálogo, combinaciones, vistas de la cámara y funciones del precio, del link y del resalte (con tests)
 ├── store/              ← estado compartido con Zustand
 ├── scripts/            ← separa en partes el modelo 3D original
 ├── public/modelos/     ← el modelo ya preparado (400 KB)
@@ -99,6 +101,10 @@ npm run e2e
 
 **El link es el diseño guardado.** No hay backend: el link guarda el diseño, así que para compartirlo no se necesita nada más. Solo guarda lo que cambió respecto al diseño inicial, así el link queda corto. Cualquiera puede escribir un link, así que la página revisa cada valor al leerlo: un color que no existe, como `suela=morado`, se ignora y esa parte queda como al inicio. La barra de direcciones se actualiza con `history.replaceState`, así el botón "atrás" no pasa por cada color que probaste.
 
+**Las combinaciones son diseños completos, y la marcada se calcula.** Cada combinación de [`lib/combinaciones.ts`](lib/combinaciones.ts) tiene la misma forma que el diseño del store, así que aplicarla es reemplazar el diseño: el precio, el link y la zapatilla se actualizan solos, como con cualquier cambio. No se guarda cuál combinación elegiste: una aparece marcada si el diseño es justo ese, comparando parte por parte. Así, si cambias un color a mano, deja de estar marcada sin programar nada más. Al aplicar una, el panel vuelve al cuerpo y la cámara muestra la zapatilla completa, porque cambió toda.
+
+**"Sorpréndeme" recibe el azar como parámetro.** `combinacionAlAzar()` elige un color al azar de los que tiene cada parte, y una de cada cuatro partes sale brillante. Los números al azar vienen de una función que se le pasa (`Math.random` si no se le pasa nada): los tests le pasan números fijos y saben qué va a salir. Las franjas nunca salen del color del cuerpo, porque casi no se verían; en Nocturna es a propósito, y se distinguen por el brillo.
+
 **Cambiar un color no vuelve a armar la zapatilla 3D.** Cada parte mantiene su malla y su material, y solo cambian el `color` y la rugosidad (`roughness`) del material. El acabado es solo la rugosidad: 0,85 reparte la luz (mate) y 0,3 la refleja (brillante). El cambio es suave: en cada cuadro (`useFrame`), el color avanza una parte del camino que le falta al elegido (`lerp`), y en un cuarto de segundo ya hizo el 95 %. Lo que se anima se guarda en `useRef` y no en `useState`: cambia 60 veces por segundo y no hace falta que React vuelva a dibujar el componente.
 
 **Un clic elige una parte y arrastrar gira.** Las dos cosas empiezan con el mismo botón del mouse. Un clic solo elige una parte si el puntero se movió menos de 2 píxeles, y se detiene ahí, así solo cuenta la parte de más adelante y no las que están detrás.
@@ -127,8 +133,8 @@ npm run e2e
 
 ## Tests y CI
 
-- **Tests unitarios (Vitest):** 34 tests del precio, del link, de las vistas de la cámara y del resalte: recargos, links cortos, volver a leer un link, descartar valores que no existen, que cada vista respete los límites de la cámara y que el resalte cambie igual la luminosidad de todos los colores sin cambiarles el tono.
-- **Tests e2e (Playwright):** 11 tests en un navegador de verdad, en una pantalla de escritorio y en un celular chico (360 × 740); el del mouse corre solo en escritorio. En el CI corren contra la versión compilada. Revisan que elegir opciones actualice el precio y el link, que "Copiar link" lo copie, que un link compartido abra el mismo diseño, que se ignoren los valores que no existen, que la página nunca se desplace entera, que sin WebGL el panel siga funcionando, que la zapatilla gire sola hasta tocarla y se quede quieta si el sistema pide reducir el movimiento, que al elegir una parte la cámara vaya a mostrarla y deje de girar, que la parte bajo el mouse se resalte, y que existan el ícono y la imagen para compartir. Para saber si la zapatilla está quieta, el test saca dos fotos del visor con medio segundo de diferencia: si son idénticas, no se movió. Con fotos también se revisa que al volver al cuerpo la cámara quede justo donde empezó, y que la parte vuelva a su color al sacar el mouse.
+- **Tests unitarios (Vitest):** 47 tests del precio, del link, de las combinaciones, de las vistas de la cámara y del resalte: recargos, links cortos, volver a leer un link, descartar valores que no existen, que cada combinación use colores que se venden para cada parte, que el diseño al azar sea siempre válido, que cada vista respete los límites de la cámara y que el resalte cambie igual la luminosidad de todos los colores sin cambiarles el tono.
+- **Tests e2e (Playwright):** 12 tests en un navegador de verdad, en una pantalla de escritorio y en un celular chico (360 × 740); el del mouse corre solo en escritorio. En el CI corren contra la versión compilada. Revisan que elegir opciones actualice el precio y el link, que "Copiar link" lo copie, que un link compartido abra el mismo diseño, que se ignoren los valores que no existen, que la página nunca se desplace entera, que sin WebGL el panel siga funcionando, que la zapatilla gire sola hasta tocarla y se quede quieta si el sistema pide reducir el movimiento, que al elegir una parte la cámara vaya a mostrarla y deje de girar, que la parte bajo el mouse se resalte, que una combinación lista cambie todo el diseño y "Original" lo devuelva al inicio, y que existan el ícono y la imagen para compartir. Para saber si la zapatilla está quieta, el test saca dos fotos del visor con medio segundo de diferencia: si son idénticas, no se movió. Con fotos también se revisa que al volver al cuerpo la cámara quede justo donde empezó, y que la parte vuelva a su color al sacar el mouse.
 - **CI:** GitHub Actions corre lint, tipos, tests unitarios, build y tests e2e en cada push. La máquina del CI no tiene tarjeta de video, así que el navegador dibuja el 3D con el procesador (unos 12 cuadros por segundo) y el modelo tarda varios segundos en aparecer. Los tests le dan hasta 30 segundos y corren de a 2 (en local, de a uno). Si un test falla, se corre otra vez y se guarda la traza de Playwright para ver qué pasó.
 
 ## Limitaciones conocidas
