@@ -2,12 +2,8 @@
 
 import { Suspense, useState } from "react";
 import { Canvas } from "@react-three/fiber";
-import {
-  ContactShadows,
-  Environment,
-  Lightformer,
-  OrbitControls,
-} from "@react-three/drei";
+import { ContactShadows, Environment, Lightformer } from "@react-three/drei";
+import Camara from "./Camara";
 import Cargando from "./Cargando";
 import LimiteDeError from "./LimiteDeError";
 import Producto from "./Producto";
@@ -17,7 +13,7 @@ function SinVisor() {
   return (
     <div
       role="alert"
-      className="absolute inset-0 flex items-center justify-center p-6 text-center text-sm text-neutral-600"
+      className="absolute inset-0 flex items-center justify-center p-6 text-center text-sm text-stone-600"
     >
       No se pudo mostrar la zapatilla en 3D en este navegador.
       <br />
@@ -34,7 +30,8 @@ export default function Visor() {
   return (
     // Si el 3D falla, solo el visor muestra el aviso: el panel y el precio siguen funcionando
     <LimiteDeError alternativa={<SinVisor />}>
-      <Canvas camera={{ position: [3.5, 2, 3.5], fov: 40 }} dpr={[1, 2]}>
+      {/* La posición de la cámara la maneja <Camara> */}
+      <Canvas camera={{ fov: 40 }} dpr={[1, 2]}>
         {/* El modelo se carga en segundo plano; mientras tanto se ve el aviso de carga */}
         <Suspense fallback={null}>
           <Producto alCargar={() => setCargando(false)} />
@@ -61,16 +58,8 @@ export default function Visor() {
           <Lightformer form="rect" intensity={1} position={[0, 8, 0]} scale={[6, 6, 1]} />
         </Environment>
 
-        {/* Girar con el mouse o los dedos. Sin desplazar la cámara y con límites de zoom
-            y de ángulo para que la zapatilla no se pierda ni se vea desde abajo. */}
-        <OrbitControls
-          makeDefault
-          target={[0, 0.6, 0]}
-          enablePan={false}
-          minDistance={2.5}
-          maxDistance={7}
-          maxPolarAngle={Math.PI / 2 - 0.05}
-        />
+        {/* Girar y acercar, la entrada animada y el giro automático */}
+        <Camara listo={!cargando} />
       </Canvas>
 
       {cargando && <Cargando />}
