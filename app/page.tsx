@@ -1,10 +1,29 @@
+import type { Metadata } from "next";
 import BarraCompra from "@/components/BarraCompra";
 import BotonCompartir from "@/components/BotonCompartir";
 import Logo from "@/components/Logo";
 import PanelOpciones from "@/components/PanelOpciones";
 import Visor from "@/components/Visor";
+import { aParametros, datosParaCompartir, TAMAÑO_IMAGEN } from "@/lib/compartir";
 
 const REPO = "https://github.com/Vitomans/configurador-3d";
+
+// Lo que se ve al compartir el link: cada diseño anuncia su propia imagen (ver lib/compartir.ts).
+// Como depende del link, el servidor arma la página en cada visita, en vez de entregar un
+// archivo hecho al compilar. Al robot de WhatsApp le llega todo en el <head>, que es donde lo busca
+export async function generateMetadata({ searchParams }: PageProps<"/">): Promise<Metadata> {
+  const { titulo, descripcion, imagen, alt } = datosParaCompartir(aParametros(await searchParams));
+  return {
+    openGraph: {
+      type: "website",
+      siteName: "Pisada",
+      locale: "es_CL",
+      title: titulo,
+      description: descripcion,
+      images: [{ url: imagen, ...TAMAÑO_IMAGEN, alt, type: "image/png" }],
+    },
+  };
+}
 
 export default function Home() {
   return (
