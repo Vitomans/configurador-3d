@@ -2,7 +2,7 @@
 
 [![Estado del CI](https://github.com/Vitomans/configurador-3d/actions/workflows/ci.yml/badge.svg)](https://github.com/Vitomans/configurador-3d/actions/workflows/ci.yml)
 
-Un configurador de producto para una tienda de zapatillas ficticia. Gira la zapatilla en 3D, cambia el color y el acabado de cada parte, mira cómo cambia el precio y comparte tu diseño exacto con un link.
+Un configurador de producto para una tienda de zapatillas ficticia. Gira la zapatilla en 3D, cambia el color y el acabado de cada parte, mira cómo cambia el precio, comparte tu diseño exacto con un link y ciérralo con una compra simulada, con una foto de tu diseño.
 
 **Demo en vivo: [pisada-3d.vercel.app](https://pisada-3d.vercel.app)**
 
@@ -12,7 +12,7 @@ Un configurador de producto para una tienda de zapatillas ficticia. Gira la zapa
 
 ## Funcionalidades
 
-<img src="docs/celular.png" alt="El configurador en un celular: la zapatilla arriba, las opciones abajo y el precio siempre a la vista" width="240" align="right">
+<img src="docs/celular.png" alt="El configurador en un celular: la zapatilla arriba con el botón Compartir, las opciones abajo, y el precio y Agregar al carrito siempre a la vista" width="240" align="right">
 
 - **Visor 3D:** arrastra para girar y usa la rueda para acercar, o desliza y pellizca en el celular. Luces tipo estudio de fotos, un fondo de estudio y una sombra suave.
 - **Entrada animada:** al cargar, la cámara se acerca con un movimiento suave y la zapatilla gira sola hasta que la tocas. Si el sistema pide reducir el movimiento, se queda quieta.
@@ -21,8 +21,9 @@ Un configurador de producto para una tienda de zapatillas ficticia. Gira la zapa
 - **Elegir una parte en la zapatilla:** al hacer clic (o tocar) una parte del modelo 3D, el panel pasa a esa parte.
 - **La cámara va a la parte:** al elegir una parte, en el panel o en la zapatilla, la cámara gira suave hasta mostrarla y la parte da un destello. Con el mouse, la parte que está debajo se resalta, y los cambios de color y de acabado son suaves.
 - **Precio en vivo:** un precio base de US$ 120, más US$ 8 por cada parte brillante y US$ 10 por la suela caramelo.
-- **Link para compartir:** el diseño se guarda en el link (`?cuerpo=rojo&suela=caramelo`). Al abrirlo se carga el mismo diseño, y "Copiar link" lo copia. Al compartirlo en WhatsApp o LinkedIn se ve una imagen de la tienda.
-- **Pensado para el celular:** la zapatilla queda fija arriba mientras las opciones se desplazan abajo, y el precio y el botón para compartir siempre se ven. Arrastrar sobre la zapatilla la gira en vez de mover la página.
+- **Link para compartir:** el diseño se guarda en el link (`?cuerpo=rojo&suela=caramelo`) y al abrirlo se carga el mismo diseño. "Compartir", sobre la zapatilla, abre el menú de compartir del teléfono en el celular y copia el link en el computador. Al compartirlo en WhatsApp o LinkedIn se ve una imagen de la tienda.
+- **Compra simulada:** eliges tu talla y "Agregar al carrito" abre el resumen del pedido, con una foto de tu diseño sacada del 3D, el color y el acabado de cada parte, lo que suma cada una y el total. Desde ahí puedes descargar la foto o compartir el diseño. Sin talla no se agrega: la página te lleva a las tallas y te avisa. No se cobra nada.
+- **Pensado para el celular:** la zapatilla queda fija arriba mientras las opciones se desplazan abajo, y el precio y "Agregar al carrito" siempre se ven. Arrastrar sobre la zapatilla la gira en vez de mover la página.
 - **Accesible:** todas las opciones funcionan con el teclado y con lectores de pantalla, y el círculo de carga respeta la opción "reducir movimiento".
 
 <br clear="right">
@@ -34,6 +35,7 @@ Un configurador de producto para una tienda de zapatillas ficticia. Gira la zapa
 - Three.js con [React Three Fiber](https://r3f.docs.pmnd.rs) y drei
 - Zustand para el estado compartido
 - `next/og` para dibujar la imagen para compartir el link
+- APIs del navegador: `<dialog>` para el resumen del pedido, Web Share y el portapapeles para compartir, y canvas para la foto
 - glTF Transform, meshoptimizer y sharp, para preparar el modelo 3D
 - Vitest para los tests unitarios y Playwright para los tests de punta a punta (e2e)
 - GitHub Actions: lint, tipos, tests, build y tests e2e en cada push
@@ -43,7 +45,7 @@ Un configurador de producto para una tienda de zapatillas ficticia. Gira la zapa
 ```mermaid
 flowchart LR
     panel["Panel de opciones"] -->|"cambiarColor()<br/>cambiarAcabado()"| store[("Store de Zustand<br/>el diseño")]
-    panel -->|"elegirParte()"| store
+    panel -->|"elegirParte()<br/>elegirTalla()"| store
     combinaciones["Combinaciones listas<br/>y Sorpréndeme"] -->|"aplicarCombinacion()"| store
     zapatilla["Clic en la zapatilla 3D"] -->|"elegirParte()"| store
     store --> producto["Zapatilla 3D<br/>color y rugosidad<br/>de cada parte"]
@@ -51,11 +53,14 @@ flowchart LR
     store --> precio["calcularPrecio()<br/>precio"]
     store --> url["configuracionAParametros()<br/>barra de direcciones"]
     link["Link compartido"] -->|"parametrosAConfiguracion()"| store
+    store --> pedido["Resumen del pedido<br/>detalle y talla"]
+    producto -->|"sacarFoto()"| pedido
 ```
 
 1. El panel y la zapatilla 3D comparten un store de Zustand con el diseño (el color y el acabado de cada parte) y con la parte elegida.
 2. Cuando cambia el diseño, la zapatilla 3D pasa suave a sus colores nuevos, el precio se vuelve a calcular y la barra de direcciones recibe el link nuevo. Cuando cambia la parte elegida, la cámara va a mostrarla.
 3. Cuando alguien abre un link compartido, el diseño se lee del link y se carga en el store.
+4. Al agregar al carrito, el resumen del pedido le pide una foto a la zapatilla 3D y muestra el diseño, la talla y el precio detallado.
 
 ## Estructura del proyecto
 
@@ -63,8 +68,8 @@ flowchart LR
 configurador-3d/
 ├── app/                ← la página (App Router de Next.js), el ícono y la imagen para compartir
 ├── assets/             ← la letra y la foto de la zapatilla que usa la imagen para compartir
-├── components/         ← visor 3D, cámara, la zapatilla 3D, logo, panel de opciones, precio y botón para compartir
-├── hooks/              ← mantiene sincronizados el diseño y el link
+├── components/         ← visor 3D, cámara, la zapatilla 3D y su foto, logo, panel de opciones, barra de compra, resumen del pedido y botón para compartir
+├── hooks/              ← mantiene sincronizados el diseño y el link, y comparte el link
 ├── lib/                ← catálogo, combinaciones, vistas de la cámara y funciones del precio, del link y del resalte (con tests)
 ├── store/              ← estado compartido con Zustand
 ├── scripts/            ← separa en partes el modelo 3D original
@@ -119,6 +124,16 @@ npm run e2e
 
 **La imagen para compartir se dibuja al compilar.** [`app/opengraph-image.tsx`](app/opengraph-image.tsx) arma la imagen con JSX y `ImageResponse` de `next/og`, y Next.js agrega solo las etiquetas `og:image` que leen WhatsApp, LinkedIn y otros. El 3D no se puede dibujar en el servidor, así que la imagen usa una foto de la zapatilla con fondo transparente, sacada de la misma página. La letra de la marca (Archivo) es "variable" en la página: un solo archivo trae todos los anchos y grosores. `next/og` no entiende ese tipo de archivo, así que usa uno fijo con la versión extendida, gruesa y en cursiva.
 
+**La foto del pedido sale del mismo 3D, con una cámara aparte.** El botón "Agregar al carrito" está fuera del canvas 3D, así que un componente de adentro ([`Fotografo.tsx`](components/Fotografo.tsx)) deja en el store la función `sacarFoto()`, y la barra de compra la llama. La foto usa su propia cámara, en la vista de toda la zapatilla, así sale igual aunque estés mirando la suela de cerca. Por un momento el canvas cambia a 1080 × 1080 píxeles (sin cambiar su tamaño en la página), dibuja la zapatilla y la copia sobre el fondo de estudio en un canvas 2D. Después vuelve a su tamaño y dibuja de nuevo la vista normal. Como todo pasa seguido, antes de que la pantalla se actualice, nunca ves la cámara de la foto. El PNG se arma con `toBlob`, sin congelar la página, y recibe una dirección `blob:` con `URL.createObjectURL`: es corta, sirve para la imagen y para "Descargar imagen", y se libera cuando llega otra foto.
+
+**El resumen del pedido es un `<dialog>` nativo.** Se abre con `showModal()`, y el navegador hace el resto: lo pone encima de todo, no deja tocar la página de atrás, no deja que el foco se escape, lo cierra con Esc y al cerrarlo devuelve el foco al botón que lo abrió. El evento `close` se dispara siempre que se cierra (con Esc, con un botón o con un clic fuera de la caja), y ahí se avisa al estado de React. Sin eso, después de cerrarlo con Esc no se podría volver a abrir: un test lo revisa.
+
+**El detalle del precio usa la misma función que el total.** `recargoDeParte()` dice cuánto suma cada parte (su acabado y su color especial), y `calcularPrecio()` es el precio base más esos recargos. El resumen muestra los recargos parte por parte, así que el detalle y el total no pueden quedar distintos.
+
+**La talla no va en el link.** El link guarda el diseño, que es lo que se comparte. La talla es de quien compra, así que vive solo en el store. Sin talla, "Agregar al carrito" no abre el resumen: muestra un aviso (`role="alert"`, que el lector de pantalla lee apenas aparece), desplaza el panel hasta las tallas y pone el foco en la primera.
+
+**"Compartir" cambia según el dispositivo.** Con pantalla táctil (`pointer: coarse`) usa `navigator.share`, que abre el menú de compartir del teléfono (WhatsApp, Instagram, correo...). En el computador ese menú es poco común, así que copia el link y el botón avisa "¡Link copiado!". Si la persona cierra el menú sin elegir nada, no pasa nada más. Está sobre la zapatilla, siempre a mano, y también en el resumen del pedido.
+
 **La sombra se calcula una sola vez.** La zapatilla nunca se mueve: lo que gira es la cámara. Por eso la sombra suave de abajo se dibuja una vez, cuando el modelo está listo, y no en cada cuadro. Sin tarjeta de video, eso sube la página de 9 a 14 cuadros por segundo.
 
 **Luces de estudio sin descargar una imagen.** Los reflejos vienen de unos paneles de luz armados en el código (`Lightformer` de drei), no de una foto HDR. Hay un archivo menos que descargar y los materiales igual se ven realistas.
@@ -133,8 +148,8 @@ npm run e2e
 
 ## Tests y CI
 
-- **Tests unitarios (Vitest):** 47 tests del precio, del link, de las combinaciones, de las vistas de la cámara y del resalte: recargos, links cortos, volver a leer un link, descartar valores que no existen, que cada combinación use colores que se venden para cada parte, que el diseño al azar sea siempre válido, que cada vista respete los límites de la cámara y que el resalte cambie igual la luminosidad de todos los colores sin cambiarles el tono.
-- **Tests e2e (Playwright):** 12 tests en un navegador de verdad, en una pantalla de escritorio y en un celular chico (360 × 740); el del mouse corre solo en escritorio. En el CI corren contra la versión compilada. Revisan que elegir opciones actualice el precio y el link, que "Copiar link" lo copie, que un link compartido abra el mismo diseño, que se ignoren los valores que no existen, que la página nunca se desplace entera, que sin WebGL el panel siga funcionando, que la zapatilla gire sola hasta tocarla y se quede quieta si el sistema pide reducir el movimiento, que al elegir una parte la cámara vaya a mostrarla y deje de girar, que la parte bajo el mouse se resalte, que una combinación lista cambie todo el diseño y "Original" lo devuelva al inicio, y que existan el ícono y la imagen para compartir. Para saber si la zapatilla está quieta, el test saca dos fotos del visor con medio segundo de diferencia: si son idénticas, no se movió. Con fotos también se revisa que al volver al cuerpo la cámara quede justo donde empezó, y que la parte vuelva a su color al sacar el mouse.
+- **Tests unitarios (Vitest):** 50 tests del precio, del link, de las combinaciones, de las vistas de la cámara y del resalte: recargos (también el de cada parte), links cortos, volver a leer un link, descartar valores que no existen, que cada combinación use colores que se venden para cada parte, que el diseño al azar sea siempre válido, que cada vista respete los límites de la cámara y que el resalte cambie igual la luminosidad de todos los colores sin cambiarles el tono.
+- **Tests e2e (Playwright):** 13 tests en un navegador de verdad, en una pantalla de escritorio y en un celular chico (360 × 740); el del mouse corre solo en escritorio. En el CI corren contra la versión compilada. Revisan que elegir opciones actualice el precio y el link, que "Compartir" abra el menú del teléfono en el celular y copie el link en el computador, que un link compartido abra el mismo diseño, que se ignoren los valores que no existen, que la página nunca se desplace entera, que sin WebGL el panel y el carrito sigan funcionando, que sin talla no se agregue al carrito, que el resumen muestre la talla, el detalle del precio y una foto cuadrada con los colores del diseño, que "Descargar imagen" baje esa foto, que el resumen se cierre con un botón o con Esc y se pueda volver a abrir, que la zapatilla gire sola hasta tocarla y se quede quieta si el sistema pide reducir el movimiento, que al elegir una parte la cámara vaya a mostrarla y deje de girar, que la parte bajo el mouse se resalte, que una combinación lista cambie todo el diseño y "Original" lo devuelva al inicio, y que existan el ícono y la imagen para compartir. Para saber si la zapatilla está quieta, el test saca dos fotos del visor con medio segundo de diferencia: si son idénticas, no se movió. Con fotos también se revisa que al volver al cuerpo la cámara quede justo donde empezó, y que la parte vuelva a su color al sacar el mouse.
 - **CI:** GitHub Actions corre lint, tipos, tests unitarios, build y tests e2e en cada push. La máquina del CI no tiene tarjeta de video, así que el navegador dibuja el 3D con el procesador (unos 12 cuadros por segundo) y el modelo tarda varios segundos en aparecer. Los tests le dan hasta 30 segundos y corren de a 2 (en local, de a uno). Si un test falla, se corre otra vez y se guarda la traza de Playwright para ver qué pasó.
 
 ## Limitaciones conocidas
@@ -142,7 +157,8 @@ npm run e2e
 - El precio solo se calcula en el navegador. Una tienda real lo volvería a calcular en el servidor antes de cobrar, con el catálogo en una base de datos.
 - Hay un solo producto, y su catálogo está en el código.
 - Cada parte tiene un solo color plano: se quitaron las texturas de color originales y solo queda el relieve de la tela.
-- Sin WebGL no hay vista 3D ni foto de la zapatilla, solo un aviso.
+- Sin WebGL no hay vista 3D ni foto de la zapatilla, solo un aviso. El resumen del pedido se abre igual, sin foto.
+- El carrito es simulado: "Agregar al carrito" muestra el resumen del pedido, pero no guarda los pedidos ni cobra.
 - La imagen para compartir muestra siempre la zapatilla con sus colores iniciales, no el diseño del link.
 
 ## Comandos
