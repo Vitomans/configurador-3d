@@ -22,12 +22,17 @@ Un configurador de producto para una tienda de zapatillas ficticia. Gira la zapa
 - **La cámara va a la parte:** al elegir una parte, en el panel o en la zapatilla, la cámara gira suave hasta mostrarla y la parte da un destello. Con el mouse, la parte que está debajo se resalta, y los cambios de color y de acabado son suaves.
 - **Texto en el talón:** hasta 3 letras o números (tus iniciales o tu número) aparecen pegados en el talón de la zapatilla 3D, con la letra de la marca. Al tocar el campo, la cámara va al talón para que veas el texto mientras escribes. Sale en blanco o en negro, el que más se distinga del color del cuerpo.
 - **Precio en vivo:** un precio base de US$ 120, más US$ 8 por cada parte brillante, US$ 10 por la suela caramelo y US$ 5 por el texto del talón.
-- **Link para compartir:** el diseño se guarda en el link (`?cuerpo=rojo&suela=caramelo&texto=VM`) y al abrirlo se carga el mismo diseño. "Compartir", sobre la zapatilla, abre el menú de compartir del teléfono en el celular y copia el link en el computador. Al compartirlo en WhatsApp o LinkedIn se ve una imagen de la tienda.
+- **Link para compartir:** el diseño se guarda en el link (`?cuerpo=rojo&suela=caramelo&texto=VM`) y al abrirlo se carga el mismo diseño. "Compartir", sobre la zapatilla, abre el menú de compartir del teléfono en el celular y copia el link en el computador.
+- **Vista previa con tu diseño:** al compartir el link en WhatsApp, LinkedIn o Slack, la imagen de la vista previa muestra tu zapatilla con sus colores, el precio y el texto del talón. Un link sin diseño muestra la portada de la tienda.
 - **Compra simulada:** eliges tu talla y "Agregar al carrito" abre el resumen del pedido, con una foto de tu diseño sacada del 3D (desde atrás si lleva texto, para que se vea), el color y el acabado de cada parte, el texto, lo que suma cada cosa y el total. Desde ahí puedes descargar la foto o compartir el diseño. Sin talla no se agrega: la página te lleva a las tallas y te avisa. No se cobra nada.
 - **Pensado para el celular:** la zapatilla queda fija arriba mientras las opciones se desplazan abajo, y el precio y "Agregar al carrito" siempre se ven. Arrastrar sobre la zapatilla la gira en vez de mover la página.
 - **Accesible:** todas las opciones funcionan con el teclado y con lectores de pantalla, y el círculo de carga respeta la opción "reducir movimiento".
 
 <br clear="right">
+
+<img src="docs/vista-previa.jpg" alt="La vista previa de un link compartido: la zapatilla roja con suela caramelo, Así quedó mi diseño, los colores de cada parte, US$ 143 y VM en el talón" width="600">
+
+*La imagen que ve WhatsApp para el link `?cuerpo=rojo&suela=caramelo&acabado-suela=brillante&texto=VM`.*
 
 ## Tecnologías
 
@@ -57,24 +62,26 @@ flowchart LR
     link["Link compartido"] -->|"parametrosAConfiguracion()<br/>parametrosATexto()"| store
     store --> pedido["Resumen del pedido<br/>detalle y talla"]
     producto -->|"sacarFoto()"| pedido
+    link -->|"datosParaCompartir()"| imagen["/imagen<br/>la zapatilla del link<br/>armada con capas"]
 ```
 
 1. El panel y la zapatilla 3D comparten un store de Zustand con el diseño (el color y el acabado de cada parte, y el texto del talón), con la parte elegida y con lo que muestra la cámara.
 2. Cuando cambia el diseño, la zapatilla 3D pasa suave a sus colores nuevos, el precio se vuelve a calcular y la barra de direcciones recibe el link nuevo. Cuando cambia la parte elegida, la cámara va a mostrarla, y al tocar el campo del texto, va al talón.
 3. Cuando alguien abre un link compartido, el diseño se lee del link y se carga en el store.
 4. Al agregar al carrito, el resumen del pedido le pide una foto a la zapatilla 3D y muestra el diseño, la talla y el precio detallado.
+5. Cuando alguien pega el link en WhatsApp, el servidor arma la página con una etiqueta `og:image` que apunta a `/imagen` con el mismo diseño, y esa ruta dibuja la imagen juntando fotos de cada parte.
 
 ## Estructura del proyecto
 
 ```
 configurador-3d/
-├── app/                ← la página (App Router de Next.js), el ícono y la imagen para compartir
-├── assets/             ← la letra y la foto de la zapatilla que usa la imagen para compartir
+├── app/                ← la página (App Router de Next.js), el ícono y la ruta de la imagen para compartir
+├── assets/             ← la letra y las capas de la zapatilla (una foto por parte, color y acabado) para la imagen para compartir
 ├── components/         ← visor 3D, cámara, la zapatilla 3D, su texto y su foto, logo, panel de opciones, barra de compra, resumen del pedido y botón para compartir
 ├── hooks/              ← mantiene sincronizados el diseño y el link, y comparte el link
-├── lib/                ← catálogo, combinaciones, vistas de la cámara y funciones del precio, del link, del texto y del resalte (con tests)
+├── lib/                ← catálogo, combinaciones, vistas de la cámara y funciones del precio, del link, del texto, del resalte y de lo que se ve al compartir (con tests)
 ├── store/              ← estado compartido con Zustand
-├── scripts/            ← separa en partes el modelo 3D original
+├── scripts/            ← separa en partes el modelo 3D original y saca las capas de la imagen para compartir
 ├── public/modelos/     ← el modelo ya preparado (400 KB)
 ├── tests/              ← tests unitarios (Vitest), y tests e2e en tests/e2e (Playwright)
 └── docs/               ← el GIF y la captura de este README
@@ -136,7 +143,12 @@ npm run e2e
 
 **El fondo de estudio es HTML, detrás de un canvas transparente.** El canvas 3D no tiene fondo propio. El degradado claro al centro y el nombre "PISADA" gigante son HTML normal que está detrás, así que no le suman trabajo al 3D. El tamaño del nombre se mide con el ancho del visor (`cqw`, con `@container` de Tailwind), así cabe igual en el celular y en el escritorio.
 
-**La imagen para compartir se dibuja al compilar.** [`app/opengraph-image.tsx`](app/opengraph-image.tsx) arma la imagen con JSX y `ImageResponse` de `next/og`, y Next.js agrega solo las etiquetas `og:image` que leen WhatsApp, LinkedIn y otros. El 3D no se puede dibujar en el servidor, así que la imagen usa una foto de la zapatilla con fondo transparente, sacada de la misma página. La letra de la marca (Archivo) es "variable" en la página: un solo archivo trae todos los anchos y grosores. `next/og` no entiende ese tipo de archivo, así que usa uno fijo con la versión extendida, gruesa y en cursiva.
+**La vista previa del link se arma con fotos por capas.** Al pegar un link en WhatsApp, un robot de WhatsApp visita la página, lee las etiquetas `og:` del HTML y baja la imagen de `og:image`. Ese robot no ejecuta JavaScript ni dibuja 3D, y el 3D tampoco se puede dibujar en el servidor (necesitaría un navegador corriendo ahí). Por eso las fotos se sacan antes: [`scripts/sacar-capas.mts`](scripts/sacar-capas.mts) abre la página una vez por cada color y acabado de cada parte (58 fotos más la del diseño inicial, siempre con la misma cámara) y compara cada foto con la del diseño inicial. Los píxeles que cambian cuando cambia el color del cuerpo son del cuerpo: así sabe de qué parte es cada píxel, y guarda una capa por foto, solo con los píxeles de su parte. Cuando WhatsApp pide la imagen, [`app/imagen/route.tsx`](app/imagen/route.tsx) elige 5 capas (una por parte) y las pone una encima de otra, sobre una base con el forro y la sombra, con `ImageResponse` de `next/og`. Así la zapatilla se ve igual que en el 3D. Las capas pesan 830 KB en total, y un test revisa que no falte ninguna, por si se agrega un color al catálogo.
+
+- **La página se arma en cada visita.** Antes era un archivo fijo, hecho al compilar. Ahora `generateMetadata()` lee el diseño del link y anuncia su propia imagen (`/imagen?cuerpo=rojo&texto=VM`), así que el servidor arma la página cada vez (tarda unos 15 ms). Al robot de WhatsApp, Next.js le entrega las etiquetas dentro del `<head>`, que es donde las busca.
+- **El link de la imagen va limpio.** El diseño se lee con las mismas funciones del link (`lib/url.ts`) y se vuelve a armar: sin valores inventados y siempre en el mismo orden. Dos links con el mismo diseño piden la misma imagen, y un link con valores que no existen muestra la portada.
+- **La imagen se guarda.** La imagen de un link nunca cambia, así que la red de Vercel la guarda y no se vuelve a dibujar (cada deploy empieza de cero). Pesa menos de 200 KB: WhatsApp no muestra las imágenes muy pesadas, y lo seguro es menos de 300 KB.
+- **Una letra fija.** La letra de la marca (Archivo) es "variable" en la página: un solo archivo trae todos los anchos y grosores. `next/og` no entiende ese tipo de archivo, así que usa uno fijo con la versión extendida, gruesa y en cursiva.
 
 **La foto del pedido sale del mismo 3D, con una cámara aparte.** El botón "Agregar al carrito" está fuera del canvas 3D, así que un componente de adentro ([`Fotografo.tsx`](components/Fotografo.tsx)) deja en el store la función `sacarFoto()`, y la barra de compra la llama. La foto usa su propia cámara, en la vista de toda la zapatilla, así sale igual aunque estés mirando la suela de cerca. Si lleva texto, la foto se saca desde atrás y un poco de lado, para que se lea el texto. Por un momento el canvas cambia a 1080 × 1080 píxeles (sin cambiar su tamaño en la página), dibuja la zapatilla y la copia sobre el fondo de estudio en un canvas 2D. Después vuelve a su tamaño y dibuja de nuevo la vista normal. Como todo pasa seguido, antes de que la pantalla se actualice, nunca ves la cámara de la foto. La foto se guarda en JPG y no en PNG: tiene fondo, así que no necesita transparencia, y en Chrome el PNG tardaba hasta un segundo en armarse (el degradado del fondo se comprime mal) y pesaba 1,3 MB. En JPG, `toDataURL` tarda unos 20 ms y la foto pesa ~100 KB, así que el resumen se abre al instante. La misma foto (un data URL: la imagen escrita como texto) sirve para mostrarla y para "Descargar imagen".
 
@@ -162,8 +174,8 @@ npm run e2e
 
 ## Tests y CI
 
-- **Tests unitarios (Vitest):** 70 tests del precio, del link, del texto, de las combinaciones, de las vistas de la cámara y del resalte: recargos (también el de cada parte y el del texto), links cortos, volver a leer un link, descartar valores que no existen, limpiar el texto igual en el campo y en el link, que el texto se lea sobre cualquier color del cuerpo, que cada combinación use colores que se venden para cada parte, que el diseño al azar sea siempre válido, que cada vista respete los límites de la cámara y que el resalte cambie igual la luminosidad de todos los colores sin cambiarles el tono.
-- **Tests e2e (Playwright):** 14 tests en un navegador de verdad, en una pantalla de escritorio y en un celular chico (360 × 740); el del mouse corre solo en escritorio. En el CI corren contra la versión compilada. Revisan que elegir opciones actualice el precio y el link, que "Compartir" abra el menú del teléfono en el celular y copie el link en el computador, que un link compartido abra el mismo diseño, que se ignoren los valores que no existen, que la página nunca se desplace entera, que sin WebGL el panel y el carrito sigan funcionando, que sin talla no se agregue al carrito, que el resumen muestre la talla, el detalle del precio (también el texto) y una foto cuadrada con los colores del diseño, que "Descargar imagen" baje esa foto, que el resumen se cierre con un botón o con Esc y se pueda volver a abrir, que la zapatilla gire sola hasta tocarla y se quede quieta si el sistema pide reducir el movimiento, que al elegir una parte la cámara vaya a mostrarla y deje de girar, que la parte bajo el mouse se resalte, que una combinación lista cambie todo el diseño y "Original" lo devuelva al inicio, que el texto del talón quede en mayúsculas y sin signos, aparezca en la zapatilla, sume al precio y vaya en el link, y que existan el ícono y la imagen para compartir. Para saber si la zapatilla está quieta, el test saca dos fotos del visor con medio segundo de diferencia: si son idénticas, no se movió. Con fotos también se revisa que al volver al cuerpo la cámara quede justo donde empezó, que la parte vuelva a su color al sacar el mouse, y que el talón cambie al escribir el texto y vuelva a verse igual al borrarlo.
+- **Tests unitarios (Vitest):** 84 tests del precio, del link, del texto, de las combinaciones, de las vistas de la cámara, del resalte y de la imagen para compartir: recargos (también el de cada parte y el del texto), links cortos, volver a leer un link, descartar valores que no existen, limpiar el texto igual en el campo y en el link, que el texto se lea sobre cualquier color del cuerpo, que cada combinación use colores que se venden para cada parte, que el diseño al azar sea siempre válido, que cada vista respete los límites de la cámara que el resalte cambie igual la luminosidad de todos los colores sin cambiarles el tono, que haya una capa por cada color y acabado de cada parte, y que la imagen para compartir pese menos de 300 KB y muestre los colores del link.
+- **Tests e2e (Playwright):** 15 tests en un navegador de verdad, en una pantalla de escritorio y en un celular chico (360 × 740); el del mouse y el de la vista previa corren solo en escritorio. En el CI corren contra la versión compilada. Revisan que elegir opciones actualice el precio y el link, que "Compartir" abra el menú del teléfono en el celular y copie el link en el computador, que un link compartido abra el mismo diseño, que se ignoren los valores que no existen, que la página nunca se desplace entera, que sin WebGL el panel y el carrito sigan funcionando, que sin talla no se agregue al carrito, que el resumen muestre la talla, el detalle del precio (también el texto) y una foto cuadrada con los colores del diseño, que "Descargar imagen" baje esa foto, que el resumen se cierre con un botón o con Esc y se pueda volver a abrir, que la zapatilla gire sola hasta tocarla y se quede quieta si el sistema pide reducir el movimiento, que al elegir una parte la cámara vaya a mostrarla y deje de girar, que la parte bajo el mouse se resalte, que una combinación lista cambie todo el diseño y "Original" lo devuelva al inicio, que el texto del talón quede en mayúsculas y sin signos, aparezca en la zapatilla, sume al precio y vaya en el link, que existan el ícono y la imagen para compartir, y que el robot de WhatsApp encuentre en el `<head>` la imagen de cada diseño. Para saber si la zapatilla está quieta, el test saca dos fotos del visor con medio segundo de diferencia: si son idénticas, no se movió. Con fotos también se revisa que al volver al cuerpo la cámara quede justo donde empezó, que la parte vuelva a su color al sacar el mouse, y que el talón cambie al escribir el texto y vuelva a verse igual al borrarlo.
 - **CI:** GitHub Actions corre lint, tipos, tests unitarios, build y tests e2e en cada push. La máquina del CI no tiene tarjeta de video, así que el navegador dibuja el 3D con el procesador (unos 12 cuadros por segundo) y el modelo tarda varios segundos en aparecer. Los tests le dan hasta 30 segundos y corren de a 2 (en local, de a uno). Si un test falla, se corre otra vez y se guarda la traza de Playwright para ver qué pasó.
 
 ## Limitaciones conocidas
@@ -173,7 +185,7 @@ npm run e2e
 - Cada parte tiene un solo color plano: se quitaron las texturas de color originales y solo queda el relieve de la tela.
 - Sin WebGL no hay vista 3D ni foto de la zapatilla, solo un aviso. El resumen del pedido se abre igual, sin foto.
 - El carrito es simulado: "Agregar al carrito" muestra el resumen del pedido, pero no guarda los pedidos ni cobra.
-- La imagen para compartir muestra siempre la zapatilla con sus colores iniciales, no el diseño del link.
+- La imagen para compartir muestra la zapatilla desde un solo ángulo. El talón no se ve, así que el texto va escrito al lado. Si cambia el catálogo o el modelo, hay que volver a sacar las capas con `npm run capas` (tarda unos 16 minutos, porque sin tarjeta de video cada foto tarda varios segundos).
 - El texto del talón acepta solo letras sin tilde (y la Ñ) y números. Si un navegador no sabe estirar la letra en un canvas (`fontStretch`), dibuja el texto con el ancho normal de la letra.
 
 ## Comandos
@@ -188,6 +200,7 @@ npm run e2e
 | `npm test` | Corre los tests unitarios |
 | `npm run e2e` | Corre los tests e2e (levanta la página si no está corriendo) |
 | `npm run modelo` | Vuelve a generar `public/modelos/zapatilla.glb` desde el modelo original |
+| `npm run capas` | Vuelve a sacar las capas de la imagen para compartir (con la página abierta en `localhost:3000`) |
 
 ## Créditos
 
