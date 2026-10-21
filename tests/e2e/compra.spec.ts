@@ -49,12 +49,12 @@ test("sin talla no se agrega; con talla muestra el resumen con la foto del dise�
   expect(foto.alto).toBe(1080);
   expect(foto.rojos).toBeGreaterThan(0.05);
 
-  // "Descargar imagen" baja esa misma foto, con un nombre de archivo PNG. Después la descarga se
+  // "Descargar imagen" baja esa misma foto, con un nombre de archivo JPG. Después la descarga se
   // cancela: guardarla en el disco tarda varios segundos y la foto ya se revisó
   const descargar = resumen.getByRole("link", { name: "Descargar imagen" });
   await expect(descargar).toHaveAttribute("href", (await imagen.getAttribute("src"))!);
   const [descarga] = await Promise.all([page.waitForEvent("download"), descargar.click()]);
-  expect(descarga.suggestedFilename()).toBe("pisada-mi-zapatilla.png");
+  expect(descarga.suggestedFilename()).toBe("pisada-mi-zapatilla.jpg");
   await descarga.cancel();
 
   // "Seguir diseñando" cierra el resumen y el foco vuelve al botón que lo abrió

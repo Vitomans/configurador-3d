@@ -9,7 +9,7 @@ import { useConfigurador } from "@/store/useConfigurador";
 
 type Props = {
   abierto: boolean;
-  foto: string | null; // la dirección de la foto de la zapatilla (blob:...), o null si no hay 3D
+  foto: string | null; // la foto de la zapatilla (un JPG como data URL), o null si no hay 3D
   alCerrar: () => void;
 };
 
@@ -77,7 +77,7 @@ export default function ResumenPedido({ abierto, foto, alCerrar }: Props) {
             donde solo hay fondo, para que el resumen quepa en la pantalla */}
         <div className="md:col-start-1 md:row-span-2 md:row-start-1">
           {foto ? (
-            // eslint-disable-next-line @next/next/no-img-element -- es una foto recién sacada, en la memoria del navegador: next/image no tiene nada que optimizar
+            // eslint-disable-next-line @next/next/no-img-element -- es una foto recién sacada (un data URL): next/image no tiene nada que optimizar
             <img
               src={foto}
               alt="Foto de tu zapatilla con el diseño elegido"
@@ -129,7 +129,7 @@ export default function ResumenPedido({ abierto, foto, alCerrar }: Props) {
           <div className="mt-4 flex flex-wrap gap-2">
             {/* download: el navegador guarda la imagen con este nombre en vez de abrirla */}
             {foto && (
-              <a href={foto} download="pisada-mi-zapatilla.png" className={estiloBotonSecundario}>
+              <a href={foto} download="pisada-mi-zapatilla.jpg" className={estiloBotonSecundario}>
                 <IconoDescargar />
                 Descargar imagen
               </a>

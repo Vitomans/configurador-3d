@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { IconoBolsa } from "@/components/Iconos";
 import ResumenPedido from "@/components/ResumenPedido";
 import { useSincronizarUrl } from "@/hooks/useSincronizarUrl";
@@ -16,17 +16,9 @@ export default function BarraCompra() {
 
   const configuracion = useConfigurador((estado) => estado.configuracion);
   const [abierto, setAbierto] = useState(false);
-  // La dirección de la foto (blob:...), o null si no hay 3D
   const [foto, setFoto] = useState<string | null>(null);
 
-  // URL.createObjectURL le da una dirección a la foto, que vive en la memoria del navegador.
-  // Cuando llega otra foto (o la página se cierra), la anterior se libera
-  useEffect(() => {
-    if (!foto) return;
-    return () => URL.revokeObjectURL(foto);
-  }, [foto]);
-
-  async function agregarAlCarrito() {
+  function agregarAlCarrito() {
     // getState() lee el store en este momento, sin que este componente tenga que escucharlo
     const { talla, avisarQueFaltaTalla, sacarFoto } = useConfigurador.getState();
 
@@ -41,8 +33,7 @@ export default function BarraCompra() {
     }
 
     // La foto se saca al abrir el resumen, con el diseño de este momento
-    const archivo = await sacarFoto();
-    setFoto(archivo && URL.createObjectURL(archivo));
+    setFoto(sacarFoto());
     setAbierto(true);
   }
 

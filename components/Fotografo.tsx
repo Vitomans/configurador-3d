@@ -9,8 +9,11 @@ import { useConfigurador } from "@/store/useConfigurador";
 const ANCHO = 1080;
 const ALTO = 1080;
 
-// Saca una foto de la zapatilla y la devuelve como un archivo PNG en memoria (un Blob)
-function fotografiar({ gl, scene, camera }: RootState): Promise<Blob | null> {
+// La calidad del JPG (de 0 a 1): 0,9 se ve igual que el original y pesa poco
+const CALIDAD = 0.9;
+
+// Saca una foto de la zapatilla y la devuelve como imagen JPG en un data URL (la imagen escrita como texto)
+function fotografiar({ gl, scene, camera }: RootState) {
   // Una cámara solo para la foto, en la vista de toda la zapatilla. Así la foto sale igual
   // aunque la persona esté mirando la suela de cerca
   const camaraDeFoto = new PerspectiveCamera(40, ANCHO / ALTO);
@@ -46,8 +49,9 @@ function fotografiar({ gl, scene, camera }: RootState): Promise<Blob | null> {
   gl.setSize(tamaño.x, tamaño.y, false);
   gl.render(scene, camera);
 
-  // Convertir la foto en PNG toma un momento: toBlob lo hace sin congelar la página y avisa al terminar
-  return new Promise((resolver) => foto.toBlob(resolver, "image/png"));
+  // En JPG y no en PNG: la foto tiene fondo, así que no necesita transparencia, y el PNG tardaba
+  // casi un segundo en armarse (el degradado se comprime mal). El JPG tarda unos 20 ms y pesa ~100 KB
+  return foto.toDataURL("image/jpeg", CALIDAD);
 }
 
 /**
@@ -62,7 +66,7 @@ export default function Fotografo() {
   useEffect(() => {
     useConfigurador.setState({ sacarFoto: () => fotografiar(get()) });
     // Si el visor desaparece, ya no hay foto
-    return () => useConfigurador.setState({ sacarFoto: async () => null });
+    return () => useConfigurador.setState({ sacarFoto: () => null });
   }, [get]);
 
   return null;

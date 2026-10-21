@@ -20,9 +20,9 @@ type EstadoConfigurador = {
   aplicarCombinacion: (configuracion: Configuracion) => void; // una combinación lista o una al azar
   elegirTalla: (talla: Talla) => void;
   avisarQueFaltaTalla: () => void;
-  // Saca una foto de la zapatilla 3D y la entrega como un archivo PNG (un Blob), o null si no
+  // Saca una foto de la zapatilla 3D y la devuelve como imagen JPG (un data URL), o null si no
   // hay 3D. La deja lista <Fotografo>, que está dentro del canvas; el resumen del pedido la usa
-  sacarFoto: () => Promise<Blob | null>;
+  sacarFoto: () => string | null;
 };
 
 // Estado compartido entre el panel y el visor 3D. Cualquier componente puede leerlo
@@ -64,5 +64,5 @@ export const useConfigurador = create<EstadoConfigurador>()((set) => ({
   avisarQueFaltaTalla: () => set({ faltaTalla: true }),
 
   // Mientras no haya 3D (cargando o sin WebGL), no hay foto
-  sacarFoto: async () => null,
+  sacarFoto: () => null,
 }));
