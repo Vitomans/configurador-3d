@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { abrir } from "./ayudas";
+import { abrir, elegir } from "./ayudas";
 
 const visor = (page: Page) => page.getByRole("region", { name: "Vista 3D de la zapatilla" });
 
@@ -52,6 +52,33 @@ test("con 'reducir movimiento' la zapatilla no se mueve sola", async ({ page }) 
 
   // La zapatilla queda quieta: no gira sola
   await expect.poll(() => estaQuieta(page), ESPERA).toBe(true);
+});
+
+test("al elegir una parte, la cámara va a mostrarla y deja de girar", async ({ page }) => {
+  await abrir(page);
+  expect(await estaQuieta(page)).toBe(false);
+
+  // La cámara viaja hasta la suela y se queda ahí: la zapatilla ya no gira sola
+  await elegir(page, "Suela");
+  await expect.poll(() => estaQuieta(page), ESPERA).toBe(true);
+});
+
+test("cada parte tiene su vista y al volver al cuerpo se ve igual que al principio", async ({ page }) => {
+  // Con 'reducir movimiento' la cámara salta de una vista a otra, sin viaje: así las fotos son exactas
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await abrir(page);
+  await expect.poll(() => estaQuieta(page), ESPERA).toBe(true);
+  const alPrincipio = await fotoDelCentro(page);
+
+  // Se compara cuando la zapatilla queda quieta: el destello de la suela también cambia
+  // la foto, aunque la cámara no se mueva
+  await elegir(page, "Suela");
+  await expect.poll(() => estaQuieta(page), ESPERA).toBe(true);
+  expect(await seVeIgualQue(page, alPrincipio)).toBe(false);
+
+  // Volver al cuerpo deja la cámara justo donde estaba, y la pieza con su color cuando se apaga el destello
+  await elegir(page, "Cuerpo");
+  await expect.poll(() => seVeIgualQue(page, alPrincipio), ESPERA).toBe(true);
 });
 
 test("la parte bajo el mouse se resalta", async ({ page, isMobile }) => {
