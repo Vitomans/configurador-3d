@@ -40,14 +40,14 @@ export default function Resumen() {
   return (
     // sticky bottom-0: queda pegado abajo del panel, así el precio siempre se ve.
     // mt-auto: si sobra espacio (en escritorio), lo empuja al fondo.
-    <div className="sticky bottom-0 mt-auto flex items-center justify-between gap-4 border-t border-neutral-200 bg-white px-4 py-3 sm:px-6 sm:py-4">
+    <div className="sticky bottom-0 mt-auto flex items-center justify-between gap-4 border-t border-stone-200 bg-white px-4 py-3 sm:px-6 sm:py-4">
       <div>
-        <label htmlFor="precio" className="block text-sm text-neutral-500">
+        <label htmlFor="precio" className="block text-sm text-stone-500">
           Precio
         </label>
         {/* <output> es la etiqueta de HTML para el resultado de un cálculo.
             aria-live hace que los lectores de pantalla anuncien el precio cuando cambia */}
-        <output id="precio" className="block text-2xl font-semibold" aria-live="polite">
+        <output id="precio" className="letra-marca block text-2xl" aria-live="polite">
           {formatearPrecio(calcularPrecio(configuracion))}
         </output>
       </div>
@@ -56,7 +56,7 @@ export default function Resumen() {
         type="button"
         onClick={copiarLink}
         aria-live="polite"
-        className="min-w-36 cursor-pointer rounded-full bg-neutral-900 px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-neutral-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+        className="min-w-36 cursor-pointer rounded-full bg-stone-900 px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-stone-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
       >
         {TEXTO_BOTON[estadoCopia]}
       </button>

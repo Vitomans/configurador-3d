@@ -10,7 +10,20 @@ import { useConfigurador } from "@/store/useConfigurador";
 // "relative" deja el botón escondido dentro de su etiqueta; si no, se ubica fuera
 // del panel y estira la página.
 const estiloBoton =
-  "relative cursor-pointer rounded-full border border-neutral-300 px-4 py-2 text-sm transition-colors hover:border-neutral-900 has-checked:border-neutral-900 has-checked:bg-neutral-900 has-checked:text-white has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-blue-600";
+  "relative cursor-pointer rounded-full border border-stone-300 px-4 py-2 text-sm transition-colors hover:border-stone-900 has-checked:border-stone-900 has-checked:bg-stone-900 has-checked:text-white has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-blue-600";
+
+// El número del paso, en un círculo, delante del título de cada grupo.
+// aria-hidden: el lector de pantalla lee solo el título ("Parte"), sin el número
+function Paso({ numero }: { numero: number }) {
+  return (
+    <span
+      aria-hidden
+      className="mr-2 inline-flex size-5 items-center justify-center rounded-full bg-marca text-[11px] font-semibold text-white"
+    >
+      {numero}
+    </span>
+  );
+}
 
 // Texto que avisa cuánto suma una opción, por ejemplo " (+US$ 10)", o nada si no suma
 function textoRecargo(recargo = 0) {
@@ -27,7 +40,10 @@ export default function PanelOpciones() {
   return (
     <div className="mt-6 space-y-6">
       <fieldset>
-        <legend className="text-sm font-medium">Parte</legend>
+        <legend className="text-sm font-medium">
+          <Paso numero={1} />
+          Parte
+        </legend>
         <div className="mt-2 flex flex-wrap gap-2">
           {PARTES.map((p) => (
             <label key={p.id} className={estiloBoton}>
@@ -42,13 +58,14 @@ export default function PanelOpciones() {
             </label>
           ))}
         </div>
-        <p className="mt-2 text-xs text-neutral-500">
+        <p className="mt-2 text-xs text-stone-500">
           También puedes tocar una parte en la zapatilla.
         </p>
       </fieldset>
 
       <fieldset>
         <legend className="text-sm font-medium">
+          <Paso numero={2} />
           Color:{" "}
           <span className="font-normal">
             {COLORES[color].nombre}
@@ -60,7 +77,7 @@ export default function PanelOpciones() {
             <label
               key={id}
               title={COLORES[id].nombre + textoRecargo(parte.recargos?.[id])}
-              className="relative size-11 cursor-pointer rounded-full border border-black/15 ring-neutral-900 ring-offset-2 transition-shadow has-checked:ring-2 has-focus-visible:outline-2 has-focus-visible:outline-offset-4 has-focus-visible:outline-blue-600"
+              className="relative size-11 cursor-pointer rounded-full border border-black/15 ring-stone-900 ring-offset-2 transition-shadow has-checked:ring-2 has-focus-visible:outline-2 has-focus-visible:outline-offset-4 has-focus-visible:outline-blue-600"
               style={{ backgroundColor: COLORES[id].hex }}
             >
               <input
@@ -79,7 +96,10 @@ export default function PanelOpciones() {
       </fieldset>
 
       <fieldset>
-        <legend className="text-sm font-medium">Acabado</legend>
+        <legend className="text-sm font-medium">
+          <Paso numero={3} />
+          Acabado
+        </legend>
         <div className="mt-2 flex gap-2">
           {(Object.keys(ACABADOS) as AcabadoId[]).map((id) => (
             <label key={id} className={estiloBoton}>

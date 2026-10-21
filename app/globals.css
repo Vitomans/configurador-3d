@@ -2,11 +2,30 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #1c1917; /* stone-900: un negro cálido */
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
+  /* La letra de la marca y los títulos (ver app/layout.tsx) */
+  --font-titulo: var(--font-archivo);
+}
+
+/* Los colores de la marca Pisada. Crean clases como bg-marca o text-marca-oscuro */
+@theme {
+  /* El naranjo de la marca: el mismo de los detalles de la zapatilla */
+  --color-marca: #e4572e;
+  /* Más oscuro, para textos chicos sobre fondo claro (el naranjo normal no tiene contraste suficiente) */
+  --color-marca-oscuro: #c2410c;
+}
+
+/* La letra de la marca: Archivo extendida (más ancha de lo normal), gruesa y en cursiva,
+   como la de una marca deportiva. Se usa con la clase "letra-marca". */
+@utility letra-marca {
+  font-family: var(--font-titulo);
+  font-weight: 800;
+  font-style: italic;
+  font-stretch: 125%;
 }

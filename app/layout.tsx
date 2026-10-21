@@ -1,10 +1,19 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Archivo, Geist } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+});
+
+// La letra de la marca. Es "variable": un solo archivo trae todos los grosores y anchos
+// (el eje "wdth"), así la página puede usar la versión extendida (ver globals.css)
+const archivo = Archivo({
+  variable: "--font-archivo",
+  subsets: ["latin"],
+  style: ["italic"],
+  axes: ["wdth"],
 });
 
 export const metadata: Metadata = {
@@ -19,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es" className={geistSans.variable}>
+    <html lang="es" className={`${geistSans.variable} ${archivo.variable}`}>
       <body className="bg-background font-sans text-foreground antialiased">
         {children}
       </body>
