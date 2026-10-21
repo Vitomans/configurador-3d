@@ -10,6 +10,10 @@ export default defineConfig({
   // En CI se reintenta una vez, por si el navegador tarda más de la cuenta
   retries: enCI ? 1 : 0,
   reporter: enCI ? "github" : "list",
+  // Cada test abre un navegador que dibuja el 3D con el procesador (sin tarjeta de video), y con
+  // muchos a la vez el procesador no da abasto. En CI corren 2 a la vez, contra la versión compilada;
+  // en local, de a uno, porque la versión de desarrollo es más lenta.
+  workers: enCI ? 2 : 1,
   // El CI no tiene tarjeta de video: el 3D se dibuja con el procesador y todo va más lento
   timeout: enCI ? 60_000 : 30_000,
   expect: { timeout: enCI ? 10_000 : 5_000 },
