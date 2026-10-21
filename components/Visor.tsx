@@ -5,6 +5,7 @@ import { Canvas } from "@react-three/fiber";
 import { ContactShadows, Environment, Lightformer } from "@react-three/drei";
 import Camara from "./Camara";
 import Cargando from "./Cargando";
+import Fotografo from "./Fotografo";
 import LimiteDeError from "./LimiteDeError";
 import Producto from "./Producto";
 
@@ -17,7 +18,7 @@ function SinVisor() {
     >
       No se pudo mostrar la zapatilla en 3D en este navegador.
       <br />
-      Igual puedes elegir los colores y copiar el link.
+      Igual puedes elegir los colores y compartir tu diseño.
     </div>
   );
 }
@@ -47,6 +48,9 @@ export default function Visor() {
             opacity={0.5}
             frames={1}
           />
+
+          {/* Deja lista la foto para el resumen del pedido, cuando la zapatilla ya está cargada */}
+          <Fotografo />
         </Suspense>
 
         {/* Iluminación tipo estudio de fotos: paneles de luz alrededor del producto.

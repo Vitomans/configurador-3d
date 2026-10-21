@@ -5,16 +5,24 @@ import {
   type ColorId,
   type Configuracion,
   type ParteId,
+  type Talla,
 } from "@/lib/opciones";
 
 type EstadoConfigurador = {
   configuracion: Configuracion;
   parteActiva: ParteId; // la parte que se está editando en el panel
+  talla: Talla | null; // null hasta que la persona elige una
+  faltaTalla: boolean; // true si apretó "Agregar al carrito" sin elegir talla
   elegirParte: (parte: ParteId) => void;
   cambiarColor: (parte: ParteId, color: ColorId) => void;
   cambiarAcabado: (parte: ParteId, acabado: AcabadoId) => void;
   cargarConfiguracion: (configuracion: Configuracion) => void; // por ejemplo, la que viene en un link
   aplicarCombinacion: (configuracion: Configuracion) => void; // una combinación lista o una al azar
+  elegirTalla: (talla: Talla) => void;
+  avisarQueFaltaTalla: () => void;
+  // Saca una foto de la zapatilla 3D y la entrega como un archivo PNG (un Blob), o null si no
+  // hay 3D. La deja lista <Fotografo>, que está dentro del canvas; el resumen del pedido la usa
+  sacarFoto: () => Promise<Blob | null>;
 };
 
 // Estado compartido entre el panel y el visor 3D. Cualquier componente puede leerlo
@@ -22,6 +30,8 @@ type EstadoConfigurador = {
 export const useConfigurador = create<EstadoConfigurador>()((set) => ({
   configuracion: CONFIGURACION_INICIAL,
   parteActiva: "cuerpo",
+  talla: null,
+  faltaTalla: false,
 
   elegirParte: (parte) => set({ parteActiva: parte }),
 
@@ -47,4 +57,12 @@ export const useConfigurador = create<EstadoConfigurador>()((set) => ({
 
   // Cambia todo el diseño y vuelve al cuerpo, así la cámara muestra la zapatilla completa
   aplicarCombinacion: (configuracion) => set({ configuracion, parteActiva: "cuerpo" }),
+
+  // Al elegir una talla, el aviso de que faltaba desaparece
+  elegirTalla: (talla) => set({ talla, faltaTalla: false }),
+
+  avisarQueFaltaTalla: () => set({ faltaTalla: true }),
+
+  // Mientras no haya 3D (cargando o sin WebGL), no hay foto
+  sacarFoto: async () => null,
 }));

@@ -1,7 +1,22 @@
 import { expect, test } from "@playwright/test";
 import { abrir, elegir, opcion, precio } from "./ayudas";
 
-test("cambia colores y acabados, actualiza el precio y el link", async ({ page }) => {
+// Lo que recibió navigator.share. El test lo reemplaza para ver qué le llegó,
+// sin abrir el menú de compartir de verdad
+declare global {
+  interface Window {
+    compartido?: ShareData;
+  }
+}
+
+test("cambia colores y acabados, actualiza el precio y el link", async ({ page, isMobile }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "share", {
+      value: async (datos: ShareData) => {
+        window.compartido = datos;
+      },
+    });
+  });
   await abrir(page);
   await expect(precio(page)).toHaveText("US$ 120");
 
@@ -15,11 +30,16 @@ test("cambia colores y acabados, actualiza el precio y el link", async ({ page }
   // El link de la barra de direcciones guarda el diseño
   await expect(page).toHaveURL(/\?suela=caramelo&acabado-suela=brillante$/);
 
-  // "Copiar link" copia ese mismo link
-  await page.getByRole("button", { name: "Copiar link" }).click();
-  await expect(page.getByRole("button", { name: "¡Link copiado!" })).toBeVisible();
-  const copiado = await page.evaluate(() => navigator.clipboard.readText());
-  expect(copiado).toBe(page.url());
+  // "Compartir" comparte ese mismo link: en el celular abre el menú de compartir del teléfono
+  // y en el computador lo copia
+  await page.getByRole("button", { name: "Compartir" }).click();
+  if (isMobile) {
+    await expect.poll(() => page.evaluate(() => window.compartido?.url)).toBe(page.url());
+  } else {
+    await expect(page.getByRole("button", { name: "¡Link copiado!" })).toBeVisible();
+    const copiado = await page.evaluate(() => navigator.clipboard.readText());
+    expect(copiado).toBe(page.url());
+  }
 });
 
 test("abre un link compartido con el mismo diseño", async ({ page }) => {
@@ -55,5 +75,6 @@ test("la página no se desplaza y el precio siempre se ve", async ({ page }) => 
 
   await expect(page.getByRole("region", { name: "Vista 3D de la zapatilla" })).toBeInViewport();
   await expect(precio(page)).toBeInViewport();
-  await expect(page.getByRole("button", { name: "Copiar link" })).toBeInViewport();
+  await expect(page.getByRole("button", { name: "Agregar al carrito" })).toBeInViewport();
+  await expect(page.getByRole("button", { name: "Compartir" })).toBeInViewport();
 });

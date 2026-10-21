@@ -1,7 +1,7 @@
 "use client";
 
 import { COMBINACIONES, coloresDe, combinacionAlAzar, sonIguales } from "@/lib/combinaciones";
-import { ACABADOS, COLORES, PARTES, type AcabadoId } from "@/lib/opciones";
+import { ACABADOS, COLORES, PARTES, TALLAS, type AcabadoId } from "@/lib/opciones";
 import { formatearPrecio } from "@/lib/precio";
 import { useConfigurador } from "@/store/useConfigurador";
 
@@ -58,6 +58,9 @@ export default function PanelOpciones() {
     cambiarColor,
     cambiarAcabado,
     aplicarCombinacion,
+    talla,
+    faltaTalla,
+    elegirTalla,
   } = useConfigurador();
 
   const parte = PARTES.find((p) => p.id === parteActiva)!;
@@ -187,6 +190,38 @@ export default function PanelOpciones() {
                 onChange={() => cambiarAcabado(parteActiva, id)}
               />
               {ACABADOS[id].nombre + textoRecargo(ACABADOS[id].recargo)}
+            </label>
+          ))}
+        </div>
+      </fieldset>
+
+      {/* La talla es de toda la zapatilla, no de una parte. El id lo usa "Agregar al carrito"
+          para traer este grupo a la vista si falta elegirla */}
+      <fieldset id="talla">
+        <legend className="text-sm font-medium">
+          <Paso numero={4} />
+          Talla <span className="font-normal text-stone-500">(EU)</span>
+        </legend>
+        {/* role="alert": el lector de pantalla lee el aviso apenas aparece */}
+        {faltaTalla && (
+          <p role="alert" className="mt-1 text-sm text-red-700">
+            Elige tu talla para agregar la zapatilla al carrito.
+          </p>
+        )}
+        <div className="mt-2 grid grid-cols-5 gap-2">
+          {TALLAS.map((id) => (
+            <label
+              key={id}
+              className={`relative flex h-11 cursor-pointer items-center justify-center rounded-lg border text-sm transition-colors hover:border-stone-900 has-checked:border-stone-900 has-checked:bg-stone-900 has-checked:text-white has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-blue-600 ${faltaTalla ? "border-red-400" : "border-stone-300"}`}
+            >
+              <input
+                type="radio"
+                name="talla"
+                className="sr-only"
+                checked={talla === id}
+                onChange={() => elegirTalla(id)}
+              />
+              {id}
             </label>
           ))}
         </div>

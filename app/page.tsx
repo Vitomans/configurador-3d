@@ -1,6 +1,7 @@
+import BarraCompra from "@/components/BarraCompra";
+import BotonCompartir from "@/components/BotonCompartir";
 import Logo from "@/components/Logo";
 import PanelOpciones from "@/components/PanelOpciones";
-import Resumen from "@/components/Resumen";
 import Visor from "@/components/Visor";
 
 const REPO = "https://github.com/Vitomans/configurador-3d";
@@ -43,6 +44,9 @@ export default function Home() {
 
           <Visor />
 
+          {/* Encima de la zapatilla, arriba a la derecha. Funciona aunque no haya 3D */}
+          <BotonCompartir />
+
           {/* La ayuda cambia según el dispositivo: dedo (pointer-coarse) o mouse */}
           <p className="pointer-events-none absolute inset-x-0 bottom-3 text-center text-xs text-stone-500">
             <span className="pointer-coarse:hidden">Arrastra para girar · Usa la rueda para acercar</span>
@@ -57,7 +61,7 @@ export default function Home() {
             </p>
             <h1 className="letra-marca mt-1 text-xl uppercase lg:text-2xl">Diseña tu zapatilla</h1>
             <p className="mt-2 text-stone-600">
-              Empieza con una combinación lista o elige el color y el acabado de cada parte.
+              Empieza con una combinación lista o elige el color y el acabado de cada parte, y al final tu talla.
             </p>
             <PanelOpciones />
             <p className="mt-8 text-xs text-stone-500">
@@ -68,7 +72,7 @@ export default function Home() {
               .
             </p>
           </div>
-          <Resumen />
+          <BarraCompra />
         </aside>
       </main>
     </div>

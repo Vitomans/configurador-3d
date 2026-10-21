@@ -19,6 +19,15 @@
   --color-marca: #e4572e;
   /* Más oscuro, para textos chicos sobre fondo claro (el naranjo normal no tiene contraste suficiente) */
   --color-marca-oscuro: #c2410c;
+
+  /* El resumen del pedido aparece subiendo un poco. Crea la clase animate-aparecer */
+  --animate-aparecer: aparecer 0.2s ease-out;
+  @keyframes aparecer {
+    from {
+      opacity: 0;
+      translate: 0 1rem;
+    }
+  }
 }
 
 /* La letra de la marca: Archivo extendida (más ancha de lo normal), gruesa y en cursiva,
