@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useThree, type RootState } from "@react-three/fiber";
 import { PerspectiveCamera, Vector2 } from "three";
-import { VISTAS } from "@/lib/vistas";
+import { VISTA_DE_FOTO_CON_TEXTO, VISTAS } from "@/lib/vistas";
 import { useConfigurador } from "@/store/useConfigurador";
 
 // El tamaño de la foto, en píxeles: cuadrada, como las fotos de Instagram, y del mismo
@@ -13,11 +13,11 @@ const ALTO = 1080;
 const CALIDAD = 0.9;
 
 // Saca una foto de la zapatilla y la devuelve como imagen JPG en un data URL (la imagen escrita como texto)
-function fotografiar({ gl, scene, camera }: RootState) {
-  // Una cámara solo para la foto, en la vista de toda la zapatilla. Así la foto sale igual
-  // aunque la persona esté mirando la suela de cerca
+function fotografiar({ gl, scene, camera }: RootState, conTexto: boolean) {
+  // Una cámara solo para la foto, en la vista de toda la zapatilla (o desde atrás, si lleva texto,
+  // para que se vea). Así la foto sale igual aunque la persona esté mirando la suela de cerca
   const camaraDeFoto = new PerspectiveCamera(40, ANCHO / ALTO);
-  const { posicion, objetivo } = VISTAS.cuerpo;
+  const { posicion, objetivo } = conTexto ? VISTA_DE_FOTO_CON_TEXTO : VISTAS.cuerpo;
   camaraDeFoto.position.set(...posicion);
   camaraDeFoto.lookAt(...objetivo);
 
@@ -64,7 +64,9 @@ export default function Fotografo() {
   const get = useThree((estado) => estado.get);
 
   useEffect(() => {
-    useConfigurador.setState({ sacarFoto: () => fotografiar(get()) });
+    useConfigurador.setState({
+      sacarFoto: () => fotografiar(get(), useConfigurador.getState().texto !== ""),
+    });
     // Si el visor desaparece, ya no hay foto
     return () => useConfigurador.setState({ sacarFoto: () => null });
   }, [get]);

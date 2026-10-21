@@ -61,7 +61,7 @@ export default function Home() {
             </p>
             <h1 className="letra-marca mt-1 text-xl uppercase lg:text-2xl">Diseña tu zapatilla</h1>
             <p className="mt-2 text-stone-600">
-              Empieza con una combinación lista o elige el color y el acabado de cada parte, y al final tu talla.
+              Empieza con una combinación lista o elige el color y el acabado de cada parte, agrega tus iniciales y al final elige tu talla.
             </p>
             <PanelOpciones />
             <p className="mt-8 text-xs text-stone-500">

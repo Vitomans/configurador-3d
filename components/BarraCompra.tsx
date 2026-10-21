@@ -15,6 +15,7 @@ export default function BarraCompra() {
   useSincronizarUrl();
 
   const configuracion = useConfigurador((estado) => estado.configuracion);
+  const texto = useConfigurador((estado) => estado.texto);
   const [abierto, setAbierto] = useState(false);
   const [foto, setFoto] = useState<string | null>(null);
 
@@ -48,7 +49,7 @@ export default function BarraCompra() {
         {/* <output> es la etiqueta de HTML para el resultado de un cálculo.
             aria-live hace que los lectores de pantalla anuncien el precio cuando cambia */}
         <output id="precio" className="letra-marca block text-2xl" aria-live="polite">
-          {formatearPrecio(calcularPrecio(configuracion))}
+          {formatearPrecio(calcularPrecio(configuracion, texto))}
         </output>
       </div>
 

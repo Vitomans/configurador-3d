@@ -11,6 +11,7 @@ import {
 } from "@/lib/opciones";
 import { colorResaltado } from "@/lib/resalte";
 import { useConfigurador } from "@/store/useConfigurador";
+import TextoTalon from "./TextoTalon";
 
 const RUTA_MODELO = "/modelos/zapatilla.glb";
 
@@ -28,6 +29,7 @@ export default function Producto({ alCargar }: { alCargar: () => void }) {
   // así que si este código se ejecuta, el modelo ya está listo.
   const { nodes, materials } = useGLTF(RUTA_MODELO);
   const configuracion = useConfigurador((estado) => estado.configuracion);
+  const texto = useConfigurador((estado) => estado.texto);
   const parteActiva = useConfigurador((estado) => estado.parteActiva);
   const elegirParte = useConfigurador((estado) => estado.elegirParte);
 
@@ -64,7 +66,12 @@ export default function Producto({ alCargar }: { alCargar: () => void }) {
               if (evento.pointerType === "mouse") setParteBajoElMouse(id);
             }}
             onPointerOut={() => setParteBajoElMouse(null)}
-          />
+          >
+            {/* El texto va pegado al cuerpo, en el talón */}
+            {id === "cuerpo" && texto && (
+              <TextoTalon nodo={nodes.cuerpo as Mesh} texto={texto} colorDelCuerpo={COLORES[color].hex} />
+            )}
+          </Pieza>
         );
       })}
 

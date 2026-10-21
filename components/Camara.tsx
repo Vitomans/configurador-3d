@@ -22,15 +22,15 @@ function irA(camara: CameraControlsImpl, { posicion, objetivo }: Vista, animar: 
  * Los controles de la cámara: girar con el mouse o los dedos y acercar con la rueda o pellizcando.
  * Además, cuando la zapatilla termina de cargar (listo), la cámara entra con un movimiento suave
  * y después la zapatilla gira sola hasta que la persona la toca. Al elegir una parte, la cámara
- * va a mostrarla.
+ * va a mostrarla, y al escribir el texto, va al talón.
  */
 export default function Camara({ listo }: { listo: boolean }) {
   const controles = useRef<CameraControlsImpl>(null);
-  const parteActiva = useConfigurador((estado) => estado.parteActiva);
+  const vista = useConfigurador((estado) => estado.vista);
   // useRef y no useState: cambian muchas veces y no hace falta volver a dibujar nada
   const girando = useRef(false);
   const quieta = useRef(false); // la persona ya movió la cámara o eligió una parte: no gira más sola
-  const parteMostrada = useRef(parteActiva); // la parte que está mostrando la cámara
+  const vistaMostrada = useRef(vista); // la vista en la que está la cámara
 
   // Mientras carga el modelo, la cámara espera en el punto de partida, ya mirando a la zapatilla
   useEffect(() => {
@@ -53,17 +53,18 @@ export default function Camara({ listo }: { listo: boolean }) {
     });
   }, [listo]);
 
-  // Al elegir otra parte (en el panel o tocándola en la zapatilla), la cámara va a mostrarla
+  // Al elegir otra parte (en el panel o tocándola en la zapatilla), la cámara va a mostrarla.
+  // Al tocar el campo del texto, va al talón
   useEffect(() => {
     const camara = controles.current;
-    if (!listo || !camara || parteActiva === parteMostrada.current) return;
+    if (!listo || !camara || vista === vistaMostrada.current) return;
 
-    parteMostrada.current = parteActiva;
+    vistaMostrada.current = vista;
     // Deja de girar sola, para que la parte quede a la vista
     quieta.current = true;
     girando.current = false;
-    irA(camara, VISTAS[parteActiva], !reducirMovimiento());
-  }, [listo, parteActiva]);
+    irA(camara, VISTAS[vista], !reducirMovimiento());
+  }, [listo, vista]);
 
   // useFrame se ejecuta en cada cuadro (unas 60 veces por segundo). delta son los segundos
   // desde el cuadro anterior: así la velocidad es la misma aunque el computador sea lento.

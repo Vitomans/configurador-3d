@@ -4,7 +4,8 @@ import { useEffect, useRef } from "react";
 import { IconoCerrar, IconoCompartir, IconoDescargar } from "@/components/Iconos";
 import { useCompartir } from "@/hooks/useCompartir";
 import { ACABADOS, COLORES, PARTES, PRECIO_BASE } from "@/lib/opciones";
-import { calcularPrecio, formatearPrecio, recargoDeParte } from "@/lib/precio";
+import { calcularPrecio, formatearPrecio, recargoDeParte, recargoDelTexto } from "@/lib/precio";
+import { colorDelTexto } from "@/lib/texto";
 import { useConfigurador } from "@/store/useConfigurador";
 
 type Props = {
@@ -17,14 +18,16 @@ const estiloBotonSecundario =
   "flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-full border border-stone-300 px-3 py-2.5 text-sm font-medium whitespace-nowrap transition-colors hover:border-stone-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600";
 
 /**
- * El resumen del pedido: la foto del diseño, el color y el acabado de cada parte, la talla
- * y el detalle del precio. Es una compra simulada: no se cobra nada.
+ * El resumen del pedido: la foto del diseño, el color y el acabado de cada parte, el texto
+ * del talón, la talla y el detalle del precio. Es una compra simulada: no se cobra nada.
  */
 export default function ResumenPedido({ abierto, foto, alCerrar }: Props) {
   const dialogo = useRef<HTMLDialogElement>(null);
   const configuracion = useConfigurador((estado) => estado.configuracion);
+  const texto = useConfigurador((estado) => estado.texto);
   const talla = useConfigurador((estado) => estado.talla);
-  const { texto, compartir } = useCompartir();
+  // textoDelBoton: "Compartir" o "¡Link copiado!"
+  const { texto: textoDelBoton, compartir } = useCompartir();
 
   // El <dialog> se abre con showModal(): queda encima de todo, el resto de la página no se
   // puede tocar mientras está abierto, el foco no se escapa y la tecla Esc lo cierra
@@ -115,11 +118,24 @@ export default function ResumenPedido({ abierto, foto, alCerrar }: Props) {
                 </li>
               );
             })}
+            {/* El texto del talón, si lleva. El circulito es el color en que se imprime */}
+            {texto && (
+              <li className="flex items-center gap-2 py-1">
+                <span
+                  aria-hidden
+                  className="size-3.5 shrink-0 rounded-full border border-black/20"
+                  style={{ backgroundColor: colorDelTexto(COLORES[configuracion.cuerpo.color].hex) }}
+                />
+                <span className="w-17 shrink-0 text-stone-500">Texto</span>
+                <span className="flex-1">{texto} en el talón</span>
+                <span>+{formatearPrecio(recargoDelTexto(texto))}</span>
+              </li>
+            )}
           </ul>
 
           <p className="mt-1 flex items-baseline justify-between border-t border-stone-200 pt-3">
             <span className="font-medium">Total</span>
-            <span className="letra-marca text-2xl">{formatearPrecio(calcularPrecio(configuracion))}</span>
+            <span className="letra-marca text-2xl">{formatearPrecio(calcularPrecio(configuracion, texto))}</span>
           </p>
 
           <p className="mt-3 rounded-lg bg-orange-50 px-3 py-2 text-xs text-stone-700">
@@ -136,7 +152,7 @@ export default function ResumenPedido({ abierto, foto, alCerrar }: Props) {
             )}
             <button type="button" onClick={compartir} aria-live="polite" className={estiloBotonSecundario}>
               <IconoCompartir />
-              {texto}
+              {textoDelBoton}
             </button>
             <button
               type="button"

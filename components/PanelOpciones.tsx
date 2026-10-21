@@ -1,7 +1,15 @@
 "use client";
 
 import { COMBINACIONES, coloresDe, combinacionAlAzar, sonIguales } from "@/lib/combinaciones";
-import { ACABADOS, COLORES, PARTES, TALLAS, type AcabadoId } from "@/lib/opciones";
+import {
+  ACABADOS,
+  COLORES,
+  LARGO_MAXIMO_TEXTO,
+  PARTES,
+  RECARGO_TEXTO,
+  TALLAS,
+  type AcabadoId,
+} from "@/lib/opciones";
 import { formatearPrecio } from "@/lib/precio";
 import { useConfigurador } from "@/store/useConfigurador";
 
@@ -58,6 +66,9 @@ export default function PanelOpciones() {
     cambiarColor,
     cambiarAcabado,
     aplicarCombinacion,
+    texto,
+    cambiarTexto,
+    mirarElTalon,
     talla,
     faltaTalla,
     elegirTalla,
@@ -195,11 +206,42 @@ export default function PanelOpciones() {
         </div>
       </fieldset>
 
+      {/* El texto es de toda la zapatilla, no de una parte. Es un solo campo, así que lleva una
+          etiqueta (label) en vez de un grupo con título */}
+      <div>
+        <label htmlFor="texto" className="text-sm font-medium">
+          <Paso numero={4} />
+          Texto en el talón{" "}
+          <span className="font-normal text-stone-500">(opcional, +{formatearPrecio(RECARGO_TEXTO)})</span>
+        </label>
+        <input
+          id="texto"
+          type="text"
+          value={texto}
+          // Lo escrito pasa por el filtro del store: "v.m" queda en "VM"
+          onChange={(evento) => cambiarTexto(evento.target.value)}
+          // Al tocar el campo, la cámara va al talón, para ver el texto mientras se escribe
+          onFocus={mirarElTalon}
+          maxLength={LARGO_MAXIMO_TEXTO}
+          placeholder="Ej.: VM"
+          aria-describedby="ayuda-texto"
+          // En el celular, el teclado parte en mayúsculas; sin autocompletar ni corrector
+          autoCapitalize="characters"
+          autoComplete="off"
+          spellCheck={false}
+          enterKeyHint="done"
+          className="mt-2 block w-32 rounded-lg border border-stone-300 px-3 py-2 text-lg font-semibold tracking-widest transition-colors placeholder:text-base placeholder:font-normal placeholder:tracking-normal placeholder:text-stone-400 hover:border-stone-900 focus-visible:border-stone-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+        />
+        <p id="ayuda-texto" className="mt-2 text-xs text-stone-500">
+          Hasta {LARGO_MAXIMO_TEXTO} letras o números, como tus iniciales.
+        </p>
+      </div>
+
       {/* La talla es de toda la zapatilla, no de una parte. El id lo usa "Agregar al carrito"
           para traer este grupo a la vista si falta elegirla */}
       <fieldset id="talla">
         <legend className="text-sm font-medium">
-          <Paso numero={4} />
+          <Paso numero={5} />
           Talla <span className="font-normal text-stone-500">(EU)</span>
         </legend>
         {/* role="alert": el lector de pantalla lee el aviso apenas aparece */}
