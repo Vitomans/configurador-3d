@@ -20,6 +20,12 @@ async function estaQuieta(page: Page) {
   return antes.equals(despues);
 }
 
+// Si el centro del visor se ve idéntico a una foto anterior. Es más rápido que estaQuieta:
+// saca una sola foto y no espera
+async function seVeIgualQue(page: Page, foto: Buffer) {
+  return (await fotoDelCentro(page)).equals(foto);
+}
+
 // Cuánto esperar a que la zapatilla quede quieta: cada intento tarda casi 2 s sin tarjeta de video
 const ESPERA = { timeout: 20_000 };
 
@@ -46,4 +52,21 @@ test("con 'reducir movimiento' la zapatilla no se mueve sola", async ({ page }) 
 
   // La zapatilla queda quieta: no gira sola
   await expect.poll(() => estaQuieta(page), ESPERA).toBe(true);
+});
+
+test("la parte bajo el mouse se resalta", async ({ page, isMobile }) => {
+  test.skip(isMobile, "En el celular no hay mouse");
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await abrir(page);
+  await expect.poll(() => estaQuieta(page), ESPERA).toBe(true);
+  const sinMouse = await fotoDelCentro(page);
+
+  // El mouse en el centro del visor, sobre la zapatilla: la parte cambia de color
+  const caja = (await visor(page).boundingBox())!;
+  await page.mouse.move(caja.x + caja.width / 2, caja.y + caja.height / 2);
+  await expect.poll(() => seVeIgualQue(page, sinMouse), ESPERA).toBe(false);
+
+  // Al sacar el mouse, la parte vuelve a su color
+  await page.mouse.move(0, 0);
+  await expect.poll(() => seVeIgualQue(page, sinMouse), ESPERA).toBe(true);
 });
