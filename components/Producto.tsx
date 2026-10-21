@@ -42,7 +42,8 @@ export default function Producto({ alCargar }: { alCargar: () => void }) {
   }, [alCargar]);
 
   return (
-    <group>
+    // El nombre sirve para encontrar la zapatilla al armar el archivo para el iPhone (sin la sombra)
+    <group name="zapatilla">
       {PARTES.map(({ id }) => {
         const { color, acabado } = configuracion[id];
         return (

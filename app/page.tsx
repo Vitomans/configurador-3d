@@ -3,6 +3,7 @@ import BarraCompra from "@/components/BarraCompra";
 import BotonCompartir from "@/components/BotonCompartir";
 import Logo from "@/components/Logo";
 import PanelOpciones from "@/components/PanelOpciones";
+import VerEnTuEspacio from "@/components/VerEnTuEspacio";
 import Visor from "@/components/Visor";
 import { aParametros, datosParaCompartir, TAMAÑO_IMAGEN } from "@/lib/compartir";
 
@@ -62,6 +63,9 @@ export default function Home() {
           </p>
 
           <Visor />
+
+          {/* Arriba a la izquierda: la zapatilla en realidad aumentada, o un código QR en el computador */}
+          <VerEnTuEspacio />
 
           {/* Encima de la zapatilla, arriba a la derecha. Funciona aunque no haya 3D */}
           <BotonCompartir />

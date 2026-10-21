@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import { IconoCerrar, IconoCompartir, IconoDescargar } from "@/components/Iconos";
 import { useCompartir } from "@/hooks/useCompartir";
+import { useDialogo } from "@/hooks/useDialogo";
 import { ACABADOS, COLORES, PARTES, PRECIO_BASE } from "@/lib/opciones";
 import { calcularPrecio, formatearPrecio, recargoDeParte, recargoDelTexto } from "@/lib/precio";
 import { colorDelTexto } from "@/lib/texto";
@@ -22,24 +22,12 @@ const estiloBotonSecundario =
  * del talón, la talla y el detalle del precio. Es una compra simulada: no se cobra nada.
  */
 export default function ResumenPedido({ abierto, foto, alCerrar }: Props) {
-  const dialogo = useRef<HTMLDialogElement>(null);
+  const { dialogo, cerrar, cerrarSiTocaFuera } = useDialogo(abierto);
   const configuracion = useConfigurador((estado) => estado.configuracion);
   const texto = useConfigurador((estado) => estado.texto);
   const talla = useConfigurador((estado) => estado.talla);
   // textoDelBoton: "Compartir" o "¡Link copiado!"
   const { texto: textoDelBoton, compartir } = useCompartir();
-
-  // El <dialog> se abre con showModal(): queda encima de todo, el resto de la página no se
-  // puede tocar mientras está abierto, el foco no se escapa y la tecla Esc lo cierra
-  useEffect(() => {
-    const elemento = dialogo.current;
-    if (!elemento) return;
-    if (abierto && !elemento.open) elemento.showModal();
-    if (!abierto && elemento.open) elemento.close();
-  }, [abierto]);
-
-  // close() dispara el evento "close", y ahí se avisa con alCerrar
-  const cerrar = () => dialogo.current?.close();
 
   return (
     <dialog
@@ -47,11 +35,7 @@ export default function ResumenPedido({ abierto, foto, alCerrar }: Props) {
       aria-labelledby="titulo-pedido"
       // Se dispara siempre que se cierra: con Esc, con un botón o con un clic fuera de la caja
       onClose={alCerrar}
-      // Un clic en el fondo oscuro, fuera de la caja, le llega al <dialog> mismo y lo cierra.
-      // La caja de adentro tapa todo el <dialog>, así que un clic en ella no cuenta
-      onClick={(evento) => {
-        if (evento.target === evento.currentTarget) cerrar();
-      }}
+      onClick={cerrarSiTocaFuera}
       className="m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-3xl overflow-y-auto overscroll-contain rounded-2xl bg-white text-stone-900 shadow-2xl backdrop:bg-stone-900/60 motion-safe:animate-aparecer"
     >
       {/* En el celular va todo hacia abajo. En escritorio, la foto a la izquierda

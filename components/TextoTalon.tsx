@@ -100,7 +100,8 @@ export default function TextoTalon({ nodo, texto, colorDelCuerpo }: Props) {
   if (!textura) return null;
 
   return (
-    <Decal position={posicion} rotation={GIRO} scale={tamano}>
+    // El nombre sirve para encontrarlo al armar el archivo para el iPhone (ver RealidadAumentada.tsx)
+    <Decal name="texto-del-talon" position={posicion} rotation={GIRO} scale={tamano}>
       {/* Un material propio en vez del de Decal: con luz, como el resto de la zapatilla, y con
           depthTest, para que el texto no se vea a través de la zapatilla cuando se mira de frente.
           polygonOffset lo dibuja apenas por delante del cuerpo, para que no se mezclen */}

@@ -8,6 +8,7 @@ import Cargando from "./Cargando";
 import Fotografo from "./Fotografo";
 import LimiteDeError from "./LimiteDeError";
 import Producto from "./Producto";
+import RealidadAumentada from "./RealidadAumentada";
 
 // Lo que se ve si el 3D no funciona (por ejemplo, si el navegador no tiene WebGL)
 function SinVisor() {
@@ -35,19 +36,22 @@ export default function Visor() {
       <Canvas camera={{ fov: 40 }} dpr={[1, 2]}>
         {/* El modelo se carga en segundo plano; mientras tanto se ve el aviso de carga */}
         <Suspense fallback={null}>
-          <Producto alCargar={() => setCargando(false)} />
+          {/* En realidad aumentada, la zapatilla y su sombra se mueven y se achican juntas */}
+          <RealidadAumentada>
+            <Producto alCargar={() => setCargando(false)} />
 
-          {/* Sombra suave bajo la zapatilla. La zapatilla nunca se mueve (gira la cámara),
-              así que la sombra se calcula una sola vez (frames={1}) y no en cada cuadro.
-              Va dentro del Suspense para calcularla cuando la zapatilla ya está cargada. */}
-          <ContactShadows
-            position={[0, 0, 0]}
-            scale={6}
-            blur={2.5}
-            far={2}
-            opacity={0.5}
-            frames={1}
-          />
+            {/* Sombra suave bajo la zapatilla. La zapatilla nunca se mueve (gira la cámara),
+                así que la sombra se calcula una sola vez (frames={1}) y no en cada cuadro.
+                Va dentro del Suspense para calcularla cuando la zapatilla ya está cargada. */}
+            <ContactShadows
+              position={[0, 0, 0]}
+              scale={6}
+              blur={2.5}
+              far={2}
+              opacity={0.5}
+              frames={1}
+            />
+          </RealidadAumentada>
 
           {/* Deja lista la foto para el resumen del pedido, cuando la zapatilla ya está cargada */}
           <Fotografo />

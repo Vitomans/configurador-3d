@@ -47,6 +47,17 @@ export function IconoBolsa() {
   );
 }
 
+// Un cubo entre las esquinas de un visor, como el de la cámara del celular
+export function IconoRealidadAumentada() {
+  return (
+    <Icono>
+      <path d="M3 8V4h4M17 4h4v4M21 16v4h-4M7 20H3v-4" />
+      <path d="m12 7 4.5 2.5v5L12 17l-4.5-2.5v-5L12 7Z" />
+      <path d="m7.5 9.5 4.5 2.5 4.5-2.5M12 12v5" />
+    </Icono>
+  );
+}
+
 export function IconoCerrar() {
   return (
     <Icono>
