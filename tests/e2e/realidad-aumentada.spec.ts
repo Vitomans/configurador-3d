@@ -45,7 +45,8 @@ test("en un celular sin realidad aumentada explica qué navegador usar", async (
 test("en Android pide la cámara con WebXR y avisa si no se pudo abrir", async ({ page, isMobile }) => {
   test.skip(!isMobile, "Es el caso de un celular");
   // Un WebXR falso: dice que puede mostrar realidad aumentada, guarda lo que se le pidió y
-  // responde como si la persona no hubiera dado permiso para usar la cámara
+  // responde como Chrome en un celular que no es compatible con ARCore: dice que sí, pero falla al
+  // pedir la sesión, con el mismo error que si faltara el permiso para usar la cámara
   await page.addInitScript(() => {
     Object.defineProperty(navigator, "xr", {
       value: {
@@ -53,7 +54,7 @@ test("en Android pide la cámara con WebXR y avisa si no se pudo abrir", async (
         requestSession: async (modo: string, opciones: XRSessionInit) => {
           const raiz = opciones.domOverlay?.root;
           window.sesionPedida = { modo, opciones: { ...opciones, domOverlay: undefined }, raizEsLaCapa: raiz instanceof HTMLElement };
-          throw new DOMException("Permiso denegado", "NotAllowedError");
+          throw new DOMException("The specified session configuration is not supported.", "NotSupportedError");
         },
       },
     });
@@ -61,7 +62,12 @@ test("en Android pide la cámara con WebXR y avisa si no se pudo abrir", async (
   await abrir(page);
 
   await boton(page).click();
-  await expect(page.getByRole("dialog", { name: "No se pudo abrir" })).toBeVisible();
+  const dialogo = page.getByRole("dialog", { name: "No se pudo abrir" });
+  await expect(dialogo).toContainText("Servicios de Google Play para RA");
+  await expect(dialogo.getByRole("link", { name: "Ver los celulares compatibles" })).toHaveAttribute(
+    "href",
+    "https://developers.google.com/ar/devices",
+  );
   const pedida = await page.evaluate(() => window.sesionPedida);
   expect(pedida).toEqual({
     modo: "immersive-ar",

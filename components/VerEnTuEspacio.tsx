@@ -10,7 +10,7 @@ import { useConfigurador } from "@/store/useConfigurador";
 import { useRealidadAumentada, type EstadoRealidadAumentada } from "@/store/useRealidadAumentada";
 
 // Lo que explica el diálogo cuando el botón no abre la realidad aumentada
-type Aviso = "qr" | "sin-realidad-aumentada" | "error";
+type Aviso = "qr" | "sin-realidad-aumentada" | "error-android" | "error-iphone";
 
 const AVISOS: Record<Aviso, { titulo: string; texto: string }> = {
   qr: {
@@ -23,10 +23,15 @@ const AVISOS: Record<Aviso, { titulo: string; texto: string }> = {
     texto:
       "Este navegador no puede mostrar realidad aumentada. Abre esta página en Chrome si tienes un Android compatible con ARCore, o en Safari si tienes un iPhone.",
   },
-  error: {
+  // Chrome entrega el mismo error para todas las causas, así que el aviso nombra las más comunes
+  "error-android": {
     titulo: "No se pudo abrir",
     texto:
-      "No se pudo abrir la realidad aumentada. Revisa que el navegador tenga permiso para usar la cámara y vuelve a intentarlo.",
+      "Este celular no pudo abrir la realidad aumentada. Puede que no sea compatible con ARCore (la tecnología de Google que la hace posible) o que le falte instalar «Servicios de Google Play para RA» desde la Play Store. Si lo tiene, revisa que Chrome tenga permiso para usar la cámara.",
+  },
+  "error-iphone": {
+    titulo: "No se pudo preparar",
+    texto: "No se pudo preparar tu zapatilla para la realidad aumentada. Vuelve a intentarlo.",
   },
 };
 
@@ -120,9 +125,11 @@ export default function VerEnTuEspacio() {
         setAviso(window.matchMedia("(pointer: coarse)").matches ? "sin-realidad-aumentada" : "qr");
       }
     } catch (error) {
-      // Por ejemplo, si la persona no dio permiso para usar la cámara
+      // En Android, Chrome responde con el mismo error (NotSupportedError) si el celular no es
+      // compatible con ARCore, si falta instalarlo o si la persona no dio permiso para usar la
+      // cámara: la causa real solo la escribe en su consola. En el iPhone falló el armado del archivo
       console.error(error);
-      setAviso("error");
+      setAviso(modo === "webxr" ? "error-android" : "error-iphone");
     } finally {
       setPreparando(false);
     }
@@ -200,6 +207,16 @@ export default function VerEnTuEspacio() {
               <p className="mt-2 text-xs text-stone-500">
                 Funciona en Android con Chrome y en iPhone con Safari.
               </p>
+            )}
+            {aviso === "error-android" && (
+              <a
+                href="https://developers.google.com/ar/devices"
+                target="_blank"
+                rel="noreferrer"
+                className="mt-2 inline-block text-sm font-medium text-marca-oscuro underline underline-offset-2"
+              >
+                Ver los celulares compatibles
+              </a>
             )}
           </div>
         )}

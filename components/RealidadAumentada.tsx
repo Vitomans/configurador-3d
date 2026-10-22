@@ -146,7 +146,7 @@ export default function RealidadAumentada({ children }: { children: ReactNode })
           domOverlay: { root: capa },
         });
       } catch (error) {
-        // Por ejemplo, si la persona no dio permiso para usar la cámara
+        // Por ejemplo, si el celular no es compatible con ARCore o la persona no dio permiso para usar la cámara
         useRealidadAumentada.setState({ estado: "apagada" });
         throw error;
       }
