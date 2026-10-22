@@ -20,7 +20,7 @@ export default defineConfig({
   use: {
     baseURL: "http://localhost:3000",
     locale: "es-CL",
-    // Para poder leer lo que copió el botón "Copiar link"
+    // Para poder leer el link que copia "Compartir" en el computador
     permissions: ["clipboard-read", "clipboard-write"],
     // La traza (capturas y pasos) sirve para ver qué pasó cuando un test falla. En CI se graba
     // solo en el segundo intento, porque grabarla hace más lenta la página
