@@ -6,9 +6,9 @@ Un configurador de producto para una tienda de zapatillas ficticia. Gira la zapa
 
 **Demo en vivo: [pisada-3d.vercel.app](https://pisada-3d.vercel.app)**
 
-![Diseñando una zapatilla: cuerpo rojo, una suela caramelo brillante elegida tocándola en la zapatilla, una vuelta completa y "Copiar link"](docs/demo.gif)
+![Diseñando una zapatilla: la cámara entra, la combinación Nocturna, una suela caramelo elegida tocándola en la zapatilla, VM en el talón y el resumen del pedido con la foto del diseño](docs/demo.gif)
 
-*El cuerpo se pone rojo. Al tocar la suela en la zapatilla 3D, el panel pasa a "Suela". El color caramelo (+US$ 10) y el acabado brillante (+US$ 8) suben el precio, y la barra de direcciones guarda el diseño. Después, una vuelta completa, y "Copiar link" copia el link.*
+*La cámara entra y la zapatilla gira sola. "Nocturna" la deja toda negra, con detalles amarillos. Al tocar la suela en la zapatilla 3D, la cámara baja a mostrarla y el panel pasa a "Suela", y el color caramelo suma US$ 10. Al tocar "Texto en el talón", la cámara va atrás y "VM" aparece en el talón (+US$ 5). Con la talla 42, "Agregar al carrito" abre el resumen del pedido con una foto del diseño. Mientras tanto, la barra de direcciones guarda el diseño.*
 
 ## Funcionalidades
 
